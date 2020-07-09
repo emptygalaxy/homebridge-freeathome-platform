@@ -1,8 +1,12 @@
+/*eslint-disable */
+
 import {uuid, Service, StreamController} from 'hap-nodejs';
 
 import 'fs';
 import { ChildProcess, spawn } from 'child_process';
-import { Logger, CameraStreamingOptions, Resolution, LegacyCameraSource, StreamRequest, SnapshotRequest, PrepareStreamRequest, PreparedStreamRequestCallback, NodeCallback, PreparedStreamResponse, SourceResponse, Address } from 'homebridge';
+import { Logger, CameraStreamingOptions, Resolution, LegacyCameraSource, StreamRequest,
+  SnapshotRequest, PrepareStreamRequest, PreparedStreamRequestCallback, NodeCallback,
+  PreparedStreamResponse, SourceResponse, Address } from 'homebridge';
 import {PlatformAccessory} from 'homebridge/lib/platformAccessory';
 const ip = require('ip');
 const crypto = require('crypto');
@@ -345,7 +349,7 @@ export class FFMPEG implements LegacyCameraSource{
       if (sessionID) {
         const sessionIdentifier = uuid.unparse(sessionID);
 
-        if (requestType == 'start') {
+        if (requestType === 'start') {
           const sessionInfo = this.pendingSessions[sessionIdentifier];
           if (sessionInfo) {
             let width = 1280;
@@ -469,7 +473,7 @@ export class FFMPEG implements LegacyCameraSource{
               self.debug ? self.log.error(error.toString()) : null;
             });
             ffmpeg.on('close', (code) => {
-              if (code == null || code == 0 || code == 255) {
+              if (code === null || code === 0 || code === 255) {
                 self.log.info('Stopped streaming');
               } else {
                 self.log.error('ERROR: FFmpeg exited with code ' + code);
@@ -485,7 +489,7 @@ export class FFMPEG implements LegacyCameraSource{
           }
 
           delete this.pendingSessions[sessionIdentifier];
-        } else if (requestType == 'stop') {
+        } else if (requestType === 'stop') {
           const ffmpegProcess = this.ongoingSessions[sessionIdentifier];
           if (ffmpegProcess) {
             ffmpegProcess.kill('SIGTERM');
@@ -509,7 +513,7 @@ export class FFMPEG implements LegacyCameraSource{
 
       // var controlService = this.accessory.getService(Service.CameraControl) || this.accessory.addService(Service.CameraControl, 'FFMPEG', 'stream');
       // if(controlService)
-      this.log.info('Has cameraService now:', controlService != undefined);
+      this.log.info('Has cameraService now:', controlService !== undefined);
 
       if(controlService) {
         this.services.push(controlService);
@@ -535,3 +539,5 @@ export class FFMPEG implements LegacyCameraSource{
       }
     }
 }
+
+/*eslint-enable */

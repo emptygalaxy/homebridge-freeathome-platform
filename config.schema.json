@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "ExampleHomebridgePlugin",
+  "pluginAlias": "FreeAtHomePlatform",
   "pluginType": "platform",
   "singular": true,
   "schema": {

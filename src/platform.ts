@@ -16,7 +16,6 @@ import {
 import { ClientConfiguration } from 'freeathome-api';
 import {DoorCallHandler} from './services/DoorCallHandler';
 import {ConnectionEvent} from 'freeathome-devices/dist/Connection';
-import {DeviceHandler} from './services/DeviceHandler';
 import {AutomaticDoorOpenerHandler} from './services/AutomaticDoorOpenerHandler';
 import {DoorOpenerHandler} from './services/DoorOpenerHandler';
 import {LightHandler} from './services/LightHandler';
@@ -135,9 +134,9 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
 
 
         for (const key in subDevices) {
-          if(!subDevices.hasOwnProperty(key)) {
-            continue;
-          }
+          // if(!subDevices.hasOwnProperty(key)) {
+          //   continue;
+          // }
 
           const subDevice: SubDevice = subDevices[key];
 
@@ -160,8 +159,8 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
             newAccessories.push(accessory);
           } else {
             this.log.info('Restoring existing accessory from cache:', accessory.displayName);
-            accessory.getService(Service.AccessoryInformation)!
-              .updateCharacteristic(Characteristic.Name, displayName);
+            accessory.getService(this.Service.AccessoryInformation)!
+              .updateCharacteristic(this.Characteristic.Name, displayName);
           }
           accessories.push(accessory);
 
@@ -190,22 +189,23 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
           // }
 
 
-          let deviceHandler: DeviceHandler|null;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const subDeviceConfig: Record<string, any>|undefined = deviceConfig[key];
 
           if(subDevice instanceof DoorCall) {
             const doorCall: DoorCall = subDevice as DoorCall;
             if(doorCall.triggerEnabled()) {
-              deviceHandler = new DoorCallButtonHandler(this.log, this.api, accessory, doorCall, subDeviceConfig);
+              new DoorCallButtonHandler(this.log, this.api, accessory, doorCall, subDeviceConfig);
             } else {
-              deviceHandler = new DoorCallHandler(this.log, this.api, accessory, doorCall, subDeviceConfig);
+              new DoorCallHandler(this.log, this.api, accessory, doorCall, subDeviceConfig);
             }
           } else if(subDevice instanceof AutomaticDoorOpener) {
-            deviceHandler = new AutomaticDoorOpenerHandler(this.log, this.api, accessory, subDevice as AutomaticDoorOpener, subDeviceConfig);
+            new AutomaticDoorOpenerHandler(this.log, this.api,
+              accessory, subDevice as AutomaticDoorOpener, subDeviceConfig);
           } else if(subDevice instanceof DoorOpener) {
-            deviceHandler = new DoorOpenerHandler(this.log, this.api, accessory, subDevice as DoorOpener, subDeviceConfig);
+            new DoorOpenerHandler(this.log, this.api, accessory, subDevice as DoorOpener, subDeviceConfig);
           } else if(subDevice instanceof Light) {
-            deviceHandler = new LightHandler(this.log, this.api, accessory, subDevice as Light, subDeviceConfig);
+            new LightHandler(this.log, this.api, accessory, subDevice as Light, subDeviceConfig);
           }
         }
       }

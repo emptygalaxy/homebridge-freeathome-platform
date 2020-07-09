@@ -1,16 +1,16 @@
 {
-  "private": true,
-  "displayName": "Plugin Name",
+  "private": false,
   "name": "homebridge-freeathome-platform",
+  "displayName": "FreeAtHome Platform",
   "version": "1.0.0",
-  "description": "A short description about what your plugin does.",
+  "description": "A platform to expose Free@home devices",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git://github.com/USERNAME/GITHUB_PROJECT_NAME.git"
+    "url": "git://github.com/emptygalaxy/homebridge-freeathome-platform.git"
   },
   "bugs": {
-    "url": "https://github.com/USERNAME/GITHUB_PROJECT_NAME/issues"
+    "url": "https://github.com/emptygalaxy/homebridge-freeathome-platform/issues"
   },
   "engines": {
     "node": ">=10.17.0",
@@ -28,7 +28,7 @@
   ],
   "dependencies": {
     "fakegato-history": "^0.5.6",
-    "freeathome-devices": "^1.0.8"
+    "freeathome-devices": "^1.0.11"
   },
   "devDependencies": {
     "@types/node": "^13.13.6",
