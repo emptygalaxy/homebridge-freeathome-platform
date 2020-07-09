@@ -27,8 +27,10 @@
     "homebridge-plugin"
   ],
   "dependencies": {
+    "crypto": "^1.0.1",
     "fakegato-history": "^0.5.6",
-    "freeathome-devices": "^1.0.11"
+    "freeathome-devices": "^1.0.11",
+    "ip": "^1.1.5"
   },
   "devDependencies": {
     "@types/node": "^13.13.6",
