@@ -4,9 +4,11 @@ import {uuid, Service, StreamController} from 'hap-nodejs';
 
 import 'fs';
 import { ChildProcess, spawn } from 'child_process';
-import { Logger, CameraStreamingOptions, Resolution, LegacyCameraSource, StreamRequest,
+import {
+  Logger, CameraStreamingOptions, Resolution, LegacyCameraSource, StreamRequest,
   SnapshotRequest, PrepareStreamRequest, PreparedStreamRequestCallback, NodeCallback,
-  PreparedStreamResponse, SourceResponse, Address } from 'homebridge';
+  PreparedStreamResponse, SourceResponse, Address, HAP
+} from 'homebridge';
 import {PlatformAccessory} from 'homebridge/lib/platformAccessory';
 const ip = require('ip');
 const crypto = require('crypto');
@@ -56,6 +58,7 @@ export interface LensCorrection {
 
 export class FFMPEG implements LegacyCameraSource{
     accessory: PlatformAccessory;
+    hap: HAP;
     log: Logger;
     name: string;
     vcodec: string;
@@ -88,12 +91,13 @@ export class FFMPEG implements LegacyCameraSource{
     maxWidth: number;
     maxHeight: number;
 
-    constructor(accessory: PlatformAccessory, cameraConfig: CameraConfig, log: Logger, videoProcessor?: string) {
+    constructor(accessory: PlatformAccessory, hap:HAP, cameraConfig: CameraConfig, log: Logger, videoProcessor?: string) {
       this.accessory = accessory;
-      // const uuid = hap.uuid;
-      // const Service = hap.Service;
-      // const Characteristic = hap.Characteristic;
-      // const StreamController = hap.StreamController;
+      this.hap = hap;
+      const uuid = hap.uuid;
+      const Service = hap.Service;
+      const Characteristic = hap.Characteristic;
+      const StreamController = hap.StreamController;
       this.log = log;
 
       const ffmpegOpt = cameraConfig.videoConfig;
@@ -338,12 +342,14 @@ export class FFMPEG implements LegacyCameraSource{
         audio: audioResp,
       };
 
+      const uuid = this.hap.uuid;
       this.pendingSessions[uuid.unparse(sessionID)] = sessionInfo;
 
       callback(response);
     }
 
     public handleStreamRequest(request: StreamRequest) {
+      const uuid = this.hap.uuid;
       const sessionID = request.sessionID;
       const requestType = request.type;
       if (sessionID) {
@@ -500,6 +506,7 @@ export class FFMPEG implements LegacyCameraSource{
     }
 
     public createCameraControlService() {
+      const Service = this.hap.Service;
       this.log.info('createCameraControlService()');
       let controlService: Service|undefined;
 
@@ -528,6 +535,7 @@ export class FFMPEG implements LegacyCameraSource{
     // Private
 
     private _createStreamControllers(maxStreams: number, options: CameraStreamingOptions) {
+      const StreamController = this.hap.StreamController;
       this.log.info('_createStreamControllers');
       const self = this;
 

@@ -53,7 +53,7 @@ export class DoorCallHandler extends DeviceHandler
         if(cameraConfig) {
             let videoProcessor: string = 'ffmpeg';
 
-            let cameraSource = new FFMPEG(accessory, cameraConfig, this.log, videoProcessor);
+            let cameraSource = new FFMPEG(accessory, this.api.hap, cameraConfig, this.log, videoProcessor);
             accessory.configureCameraSource(cameraSource);
         }
     }
