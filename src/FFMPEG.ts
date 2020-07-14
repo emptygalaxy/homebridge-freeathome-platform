@@ -1,6 +1,6 @@
 /*eslint-disable */
 
-import {uuid, Service, StreamController} from 'hap-nodejs';
+import { Service, StreamController} from 'hap-nodejs';
 
 import 'fs';
 import { ChildProcess, spawn } from 'child_process';
@@ -94,10 +94,10 @@ export class FFMPEG implements LegacyCameraSource{
     constructor(accessory: PlatformAccessory, hap:HAP, cameraConfig: CameraConfig, log: Logger, videoProcessor?: string) {
       this.accessory = accessory;
       this.hap = hap;
-      const uuid = hap.uuid;
-      const Service = hap.Service;
-      const Characteristic = hap.Characteristic;
-      const StreamController = hap.StreamController;
+      // const uuid = hap.uuid;
+      // const Service = hap.Service;
+      // const Characteristic = hap.Characteristic;
+      // const StreamController = hap.StreamController;
       this.log = log;
 
       const ffmpegOpt = cameraConfig.videoConfig;
@@ -400,7 +400,8 @@ export class FFMPEG implements LegacyCameraSource{
             const audioSsrc = sessionInfo.audio_ssrc;
             const vf: string[] = [];
 
-            const videoFilter: string|null = ((this.videoFilter === '') ? ('scale=' + width + ':' + height + '') : (this.videoFilter)); // empty string indicates default
+            // const videoFilter: string|null = ((this.videoFilter === '') ? ('scale=' + width + ':' + height + '') : (this.videoFilter)); // empty string indicates default
+            const videoFilter: string|null = this.videoFilter; // empty string indicates default
             // In the case of null, skip entirely
             if (videoFilter !== null && videoFilter !== 'none') {
               vf.push(videoFilter);

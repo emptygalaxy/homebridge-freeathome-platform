@@ -1,25 +1,26 @@
-import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig } from 'homebridge';
-import { Characteristic, Service } from 'hap-nodejs';
+import {API, APIEvent, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig} from 'homebridge';
+import {Characteristic, Service} from 'hap-nodejs';
 
-import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
+import {PLATFORM_NAME, PLUGIN_NAME} from './settings';
 
 import {
-  DeviceManager,
-  Device,
-  HomeTouchPanel,
-  SubDevice,
-  DoorCall,
   AutomaticDoorOpener,
+  Device,
+  DeviceManager,
+  DoorCall,
   DoorOpener,
+  HomeTouchPanel,
   Light,
+  SubDevice,
 } from 'freeathome-devices';
-import { ClientConfiguration } from 'freeathome-api';
+import {ClientConfiguration} from 'freeathome-api';
 import {DoorCallHandler} from './services/DoorCallHandler';
 import {ConnectionEvent} from 'freeathome-devices/dist/Connection';
 import {AutomaticDoorOpenerHandler} from './services/AutomaticDoorOpenerHandler';
 import {DoorOpenerHandler} from './services/DoorOpenerHandler';
 import {LightHandler} from './services/LightHandler';
 import {DoorCallButtonHandler} from './services/DoorCallButtonHandler';
+import {TimedAccessoryHandler} from "./services/TimedAccessoryHandler";
 
 /**
  * HomebridgePlatform
@@ -49,11 +50,12 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
     );
     this.deviceManager = new DeviceManager(sysApConfig);
 
+
     // When this event is fired it means Homebridge has restored all cached accessories from disk.
     // Dynamic Platform plugins should only register new accessories after this event was fired,
     // in order to ensure they weren't added to homebridge already. This event can also be used
     // to start discovery of new accessories.
-    this.api.on('didFinishLaunching', () => {
+    this.api.on(APIEvent.DID_FINISH_LAUNCHING, () => {
       log.debug('Executed didFinishLaunching callback');
       // run the method to discover / register your devices as accessories
       this.discoverDevices();
@@ -87,8 +89,6 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
     } else {
       this.deviceManager.on(ConnectionEvent.DEVICES, this.discoverWithDevices.bind(this));
     }
-
-
   }
 
   discoverWithDevices() {
@@ -138,99 +138,118 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
           //   continue;
           // }
 
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const subDeviceConfig: Record<string, any> | undefined = deviceConfig[key];
+
+          let enabled = true;
+
+          if(subDeviceConfig && subDeviceConfig["enabled"] !== true)
+            enabled = false;
+
+          // get device from freeathome-devices
           const subDevice: SubDevice = subDevices[key];
 
+          // set up identifier
           const identifier: string = PLATFORM_NAME + ':panel:' + subDevice.serialNumber + subDevice.channel;
           const uuid = this.api.hap.uuid.generate(identifier);
 
-          // this.log.info('UUID: ', uuid, ' - ', subDevice.constructor);
-
+          // check if it existed already
           const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
-          let displayName: string = subDevice.constructor.name;
-          if(subDevice.getRoom()) {
-            displayName = subDevice.getRoom() + ' ' + displayName;
-          }
-
-          let accessory = existingAccessory;
-          if(accessory === undefined) {
-            this.log.info('Adding new accessory:', displayName);
-            accessory = new this.api.platformAccessory(displayName, uuid);
-            newAccessories.push(accessory);
-          } else {
-            this.log.info('Restoring existing accessory from cache:', accessory.displayName);
-            accessory.getService(this.Service.AccessoryInformation)!
-              .updateCharacteristic(this.Characteristic.Name, displayName);
-          }
-          accessories.push(accessory);
-
-          /*
-          if(existingAccessory) {
-            this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
-            accessoryHandler = new ExamplePlatformAccessory(this, existingAccessory);
-
-          } else {
-            // the accessory does not yet exist, so we need to create it
-            this.log.info('Adding new accessory:', subDevice.constructor.name);
-
-            // create a new accessory
-            const accessory = new this.api.platformAccessory(subDevice.constructor.name, uuid);
-*/
-          // store a copy of the device object in the `accessory.context`
-          // the `context` property can be used to store any data about the accessory you may need
-          // accessory.context.device = subDevice;
-
-          // create the accessory handler for the newly create accessory
-          // this is imported from `platformAccessory.ts`
-          // accessoryHandler = new ExamplePlatformAccessory(this, accessory);
-
-          // link the accessory to your platform
-          // accessories.push(accessory);
-          // }
-
-
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const subDeviceConfig: Record<string, any>|undefined = deviceConfig[key];
-
-          if(subDevice instanceof DoorCall) {
-            const doorCall: DoorCall = subDevice as DoorCall;
-            if(doorCall.triggerEnabled()) {
-              new DoorCallButtonHandler(this.log, this.api, accessory, doorCall, subDeviceConfig);
-            } else {
-              new DoorCallHandler(this.log, this.api, accessory, doorCall, subDeviceConfig);
+          if (enabled === true) {
+            let displayName: string = subDevice.constructor.name;
+            if (subDevice.getRoom()) {
+              displayName = subDevice.getRoom() + ' ' + displayName;
             }
-          } else if(subDevice instanceof AutomaticDoorOpener) {
-            new AutomaticDoorOpenerHandler(this.log, this.api,
-              accessory, subDevice as AutomaticDoorOpener, subDeviceConfig);
-          } else if(subDevice instanceof DoorOpener) {
-            new DoorOpenerHandler(this.log, this.api, accessory, subDevice as DoorOpener, subDeviceConfig);
-          } else if(subDevice instanceof Light) {
-            new LightHandler(this.log, this.api, accessory, subDevice as Light, subDeviceConfig);
+
+            let accessory = existingAccessory;
+            if (accessory === undefined) {
+              this.log.info('Adding new accessory:', displayName);
+              accessory = new this.api.platformAccessory(displayName, uuid);
+              newAccessories.push(accessory);
+            } else {
+              this.log.info('Restoring existing accessory from cache:', accessory.displayName);
+              accessory.getService(this.Service.AccessoryInformation)!
+                  .updateCharacteristic(this.Characteristic.Name, displayName);
+            }
+            accessories.push(accessory);
+
+            /*
+            if(existingAccessory) {
+              this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
+              accessoryHandler = new ExamplePlatformAccessory(this, existingAccessory);
+
+            } else {
+              // the accessory does not yet exist, so we need to create it
+              this.log.info('Adding new accessory:', subDevice.constructor.name);
+
+              // create a new accessory
+              const accessory = new this.api.platformAccessory(subDevice.constructor.name, uuid);
+  */
+            // store a copy of the device object in the `accessory.context`
+            // the `context` property can be used to store any data about the accessory you may need
+            // accessory.context.device = subDevice;
+
+            // create the accessory handler for the newly create accessory
+            // this is imported from `platformAccessory.ts`
+            // accessoryHandler = new ExamplePlatformAccessory(this, accessory);
+
+            // link the accessory to your platform
+            // accessories.push(accessory);
+            // }
+
+
+            if (subDevice instanceof DoorCall) {
+              const doorCall: DoorCall = subDevice as DoorCall;
+              if (doorCall.triggerEnabled()) {
+                new DoorCallButtonHandler(this.log, this.api, accessory, doorCall, subDeviceConfig);
+                // new DoorCallHandler(this.log, this.api, accessory, doorCall, subDeviceConfig);
+                // new TimedDoorOpenerHandler(this.log, this.api, accessory, doorCall, subDeviceConfig);
+              } else {
+                new DoorCallHandler(this.log, this.api, accessory, doorCall, subDeviceConfig);
+              }
+            } else if (subDevice instanceof AutomaticDoorOpener) {
+              new AutomaticDoorOpenerHandler(this.log, this.api,
+                  accessory, subDevice as AutomaticDoorOpener, subDeviceConfig);
+            } else if (subDevice instanceof DoorOpener) {
+              new DoorOpenerHandler(this.log, this.api, accessory, subDevice as DoorOpener, subDeviceConfig);
+
+            } else if (subDevice instanceof Light) {
+              new LightHandler(this.log, this.api, accessory, subDevice as Light, subDeviceConfig);
+            }
+
+            // timer
+            if((subDevice instanceof AutomaticDoorOpener || subDevice instanceof DoorCall || subDevice instanceof DoorOpener) &&
+                subDeviceConfig != null && subDeviceConfig['timer'] != null && subDeviceConfig['timer']['enabled']) {
+              new TimedAccessoryHandler(this.log, this.api, accessory, subDevice, subDeviceConfig);
+            }
           }
         }
       }
     }
-    /*
-    this.log.info('========');
+
+    // this.log.info('========');
     newAccessories.forEach((cachedAccessory: PlatformAccessory) => {
       this.log.info('New accessory', cachedAccessory.displayName, cachedAccessory.constructor.name, cachedAccessory.UUID);
     });
-    this.log.info('========');
-    accessories.forEach((cachedAccessory: PlatformAccessory) => {
-      this.log.info('Current accessory', cachedAccessory.displayName, cachedAccessory.constructor.name, cachedAccessory.UUID);
-    });
-    this.log.info('========');
+    // this.log.info('========');
+    // accessories.forEach((cachedAccessory: PlatformAccessory) => {
+    //   this.log.info('Current accessory', cachedAccessory.displayName, cachedAccessory.constructor.name, cachedAccessory.UUID);
+    // });
+    // this.log.info('========');
 
     this.accessories.forEach((cachedAccessory: PlatformAccessory, index: number) => {
       this.log.info('Cached accessory', cachedAccessory.displayName, cachedAccessory.constructor.name, cachedAccessory.UUID);
 
       if(accessories.find(accessory => accessory.UUID === cachedAccessory.UUID) === undefined) {
+        this.log.info('Remove accessory', cachedAccessory.displayName, cachedAccessory.constructor.name, cachedAccessory.UUID);
         expiredAccessories.push(cachedAccessory);
         this.accessories.splice(index, 1);
       }
     });
-    this.log.info('========');
-    */
+    // this.log.info('========');
+
+
     this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, newAccessories);
     this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, expiredAccessories);
   }

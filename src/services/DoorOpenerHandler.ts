@@ -49,8 +49,8 @@ export class DoorOpenerHandler extends DeviceHandler
         this.addLogEntry(false);
 
         // listen for events
-        this.doorOpener.on(DoorOpenerEvent.OPEN, this.update.bind(this));
-        this.doorOpener.on(DoorOpenerEvent.CLOSE, this.update.bind(this));
+        // this.doorOpener.on(DoorOpenerEvent.OPEN, this.update.bind(this));
+        // this.doorOpener.on(DoorOpenerEvent.CLOSE, this.update.bind(this));
         this.doorOpener.on(DoorOpenerEvent.OPENED, this.opened.bind(this));
         this.doorOpener.on(DoorOpenerEvent.CLOSED, this.closed.bind(this));
         this.doorOpener.on(DeviceEvent.CHANGE, this.update.bind(this));
@@ -113,6 +113,8 @@ export class DoorOpenerHandler extends DeviceHandler
         if(this.locking == false) {
             this.log.info(this.doorOpener.getRoom()||'unknown', 'OPEN THE DOOR <=======================================================================');
             this.doorOpener.open();
+        } else {
+            this.doorOpener.close();
         }
 
         callback();

@@ -21,6 +21,10 @@ export class DeviceHandler
         this.device = device;
         this.config = config;
 
+        // hap
+        const Service = this.api.hap.Service;
+        const Characteristic = this.api.hap.Characteristic;
+
         // set up information characteristics
         let model:string = device.constructor.name;
         let serialNumber:string = device.serialNumber;
@@ -29,10 +33,10 @@ export class DeviceHandler
         if(this.device instanceof SubDevice)
             serialNumber += '.' + SubDevice.formatChannelString((this.device as SubDevice).channel);
 
-        this.accessory.getService(this.api.hap.Service.AccessoryInformation)!
-            .setCharacteristic(this.api.hap.Characteristic.Manufacturer, 'Busch-Jaeger')
-            .setCharacteristic(this.api.hap.Characteristic.Model, model)
-            .setCharacteristic(this.api.hap.Characteristic.SerialNumber, serialNumber)
+        this.accessory.getService(Service.AccessoryInformation)!
+            .setCharacteristic(Characteristic.Manufacturer, 'Busch-Jaeger')
+            .setCharacteristic(Characteristic.Model, model)
+            .setCharacteristic(Characteristic.SerialNumber, serialNumber)
         ;
     }
 

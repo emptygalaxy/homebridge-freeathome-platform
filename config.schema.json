@@ -10,6 +10,288 @@
         "type": "string",
         "required": true,
         "default": "Example Dynamic Platform"
+      },
+      "hostname": {
+        "title": "Hostname",
+        "type": "string",
+        "required": true,
+        "default": "0.0.0.0"
+      },
+      "username": {
+        "title": "Username",
+        "type": "string",
+        "required": true,
+        "default": "username"
+      },
+      "password": {
+        "title": "Password",
+        "type": "string",
+        "required": true
+      },
+      "devices": {
+        "type": "object",
+        "properties": {
+          "HomeTouchPanel": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "default": true
+              },
+              "automaticDoorOpener": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "timer": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "default": false
+                      },
+                      "delay": {
+                        "type": "number",
+                        "default": 30
+                      }
+                    }
+                  }
+                }
+              },
+              "callLevelDoorCall": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "timer": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "default": false
+                      },
+                      "delay": {
+                        "type": "number",
+                        "default": 30
+                      }
+                    }
+                  }
+                }
+              },
+              "defaultDoorOpener": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "timer": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "default": false
+                      },
+                      "delay": {
+                        "type": "number",
+                        "default": 30
+                      }
+                    }
+                  }
+                }
+              },
+              "doorCall1": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "timer": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "default": false
+                      },
+                      "delay": {
+                        "type": "number",
+                        "default": 30
+                      }
+                    }
+                  }
+                }
+              },
+              "doorCall2": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "timer": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "default": false
+                      },
+                      "delay": {
+                        "type": "number",
+                        "default": 30
+                      }
+                    }
+                  }
+                }
+              },
+              "doorCall3": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "timer": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "default": false
+                      },
+                      "delay": {
+                        "type": "number",
+                        "default": 30
+                      }
+                    }
+                  }
+                }
+              },
+              "doorCall4": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "timer": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "default": false
+                      },
+                      "delay": {
+                        "type": "number",
+                        "default": 30
+                      }
+                    }
+                  }
+                }
+              },
+              "doorOpener1": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "timer": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "default": false
+                      },
+                      "delay": {
+                        "type": "number",
+                        "default": 30
+                      }
+                    }
+                  }
+                }
+              },
+              "doorOpener2": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "timer": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "default": false
+                      },
+                      "delay": {
+                        "type": "number",
+                        "default": 30
+                      }
+                    }
+                  }
+                }
+              },
+              "doorOpener3": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "timer": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "default": false
+                      },
+                      "delay": {
+                        "type": "number",
+                        "default": 30
+                      }
+                    }
+                  }
+                }
+              },
+              "doorOpener4": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "timer": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "default": false
+                      },
+                      "delay": {
+                        "type": "number",
+                        "default": 30
+                      }
+                    }
+                  }
+                }
+              },
+              "hallwayLight": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
