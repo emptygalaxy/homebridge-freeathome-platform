@@ -4,10 +4,15 @@ import {API} from "homebridge/lib/api";
 import {PlatformAccessory} from "homebridge/lib/platformAccessory";
 import {AutomaticDoorOpener, DoorCall, DoorOpener} from "freeathome-devices";
 import { Switch } from "hap-nodejs/dist/lib/gen/HomeKit";
-import { Service, CharacteristicValue, CharacteristicGetCallback, CharacteristicEventTypes, CharacteristicSetCallback } from "hap-nodejs";
-import {SwitchProgram, PeriodInSeconds} from "../types/SwitchProgram";
-import {Slider, SliderValue} from "../types/Slider";
+import { Service, CharacteristicValue, CharacteristicGetCallback, CharacteristicEventTypes, CharacteristicSetCallback, Perms } from "hap-nodejs";
 import Timeout = NodeJS.Timeout;
+import {CreateSlider} from "../types/Slider";
+import {CreateSliderValue} from "../types/SliderValue";
+import {CreateSwitchProgram} from "../types/SwitchProgram";
+import {CreateAutomaticOff} from "../types/AutomaticOff";
+import {CreatePeriodInSeconds} from "../types/PeriodInSeconds";
+
+let SwitchProgram, AutomaticOff, PeriodInSeconds, Slider, SliderValue;
 
 export class TimedAccessoryHandler extends DeviceHandler
 {
@@ -32,6 +37,11 @@ export class TimedAccessoryHandler extends DeviceHandler
         // hap
         const Service = this.api.hap.Service;
         const Characteristic = this.api.hap.Characteristic;
+        SwitchProgram = CreateSwitchProgram(Service, Characteristic);
+        AutomaticOff = CreateAutomaticOff(Characteristic);
+        PeriodInSeconds = CreatePeriodInSeconds(Characteristic);
+        Slider = CreateSlider(Service, Characteristic);
+        SliderValue = CreateSliderValue(Characteristic);
 
         // name
         const roomName = this.device.getDisplayName() || 'unknown';
@@ -60,8 +70,6 @@ export class TimedAccessoryHandler extends DeviceHandler
             })
         ;
 
-        console.log(this.switchProgramService.characteristics);
-
         // slider
         if(this.tickEnabled) {
             this.sliderService = accessory.getService(Slider) || accessory.addService(Slider, 'Time left');
@@ -70,7 +78,7 @@ export class TimedAccessoryHandler extends DeviceHandler
                 .setProps({
                     minValue: 0,
                     maxValue: this.maxDelay,
-                    perms: [Characteristic.Perms.PAIRED_READ],
+                    perms: [Perms.PAIRED_READ],
                 })
             ;
         }

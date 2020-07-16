@@ -1,27 +1,20 @@
-import {Characteristic, Service, Formats, Perms} from 'hap-nodejs';
+import {CreateSliderValue} from "./SliderValue";
 
-export class Slider extends Service {
-    static readonly UUID: string = 'DDFC25B3-3624-44CA-9477-FDC977FC7C81';
+let Slider, SliderValue;
+export function CreateSlider(Service, Characteristic): typeof Service
+{
+    SliderValue = CreateSliderValue(Characteristic);
 
-    constructor(displayName: string) {
-        super(displayName, Slider.UUID);
+    Slider = class extends Service {
+        static readonly UUID: string = 'DDFC25B3-3624-44CA-9477-FDC977FC7C81';
 
-        // Required Characteristics
-        this.addCharacteristic(SliderValue);
-    }
-}
+        constructor(displayName: string) {
+            super(displayName, Slider.UUID);
 
-export class SliderValue extends Characteristic {
-    static readonly UUID: string = '38AFD9A5-A0C5-42D9-ACD0-1BE08D4FF3F7';
+            // Required Characteristics
+            this.addCharacteristic(SliderValue);
+        }
+    };
 
-    constructor() {
-        super('Value', SliderValue.UUID);
-
-        this.setProps({
-            format: Formats.INT,
-            perms: [Perms.PAIRED_READ, Perms.PAIRED_WRITE],
-        });
-
-        this.value = this.getDefaultValue();
-    }
+    return Slider;
 }

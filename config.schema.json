@@ -9,7 +9,7 @@
         "title": "Name",
         "type": "string",
         "required": true,
-        "default": "Example Dynamic Platform"
+        "default": "Free@home"
       },
       "hostname": {
         "title": "Hostname",
@@ -47,6 +47,7 @@
                   },
                   "timer": {
                     "type": "object",
+                    "required": false,
                     "properties": {
                       "enabled": {
                         "type": "boolean",
@@ -69,6 +70,7 @@
                   },
                   "timer": {
                     "type": "object",
+                    "required": false,
                     "properties": {
                       "enabled": {
                         "type": "boolean",
@@ -79,26 +81,92 @@
                         "default": 30
                       }
                     }
-                  }
-                }
-              },
-              "defaultDoorOpener": {
-                "type": "object",
-                "properties": {
-                  "enabled": {
-                    "type": "boolean",
-                    "default": false
                   },
-                  "timer": {
+                  "image": {
+                    "type": "string",
+                    "required": false
+                  },
+                  "camera": {
                     "type": "object",
                     "properties": {
-                      "enabled": {
+                      "name": {
+                        "type": "string",
+                        "title": "Name of the camera",
+                        "default": "Camera"
+                      },
+                      "port": {
+                        "type": "number",
+                        "title": "Port",
+                        "default": 5000
+                      },
+                      "uploader": {
                         "type": "boolean",
+                        "title": "Uploader",
                         "default": false
                       },
-                      "delay": {
-                        "type": "number",
-                        "default": 30
+                      "videoConfig": {
+                        "type": "object",
+                        "properties": {
+                          "source": {
+                            "type": "string",
+                            "title": "Video source",
+                            "default": "-rtsp_transport tcp -i rtsp://127.0.0.1:8554/stream"
+                          },
+                          "stillImageSource": {
+                            "type": "string",
+                            "title": "Image source",
+                            "default": "-rtsp_transport tcp -i rtsp://127.0.0.1:8554/stream -vframes 1"
+                          },
+                          "maxStreams": {
+                            "type": "number",
+                            "default": 2
+                          },
+                          "maxWidth": {
+                            "type": "number",
+                            "default": 1920
+                          },
+                          "maxHeight": {
+                            "type": "number",
+                            "default": 1080
+                          },
+                          "vcodec": {
+                            "type": "string",
+                            "default": "libx264"
+                          },
+                          "packetSize": {
+                            "type": "number",
+                            "default": 1316
+                          },
+                          "videoFilter": {
+                            "type": "string",
+                            "default": ""
+                          },
+                          "debug": {
+                            "type": "boolean",
+                            "default": false
+                          },
+                          "audio": {
+                            "type": "boolean",
+                            "default": false
+                          },
+                          "acodec": {
+                            "type": "string",
+                            "default": "libfdk_aac"
+                          },
+                          "lensCorrection": {
+                            "type": "object",
+                            "properties": {
+                              "k1": {
+                                "type": "number",
+                                "default": 0.5
+                              },
+                              "k2": {
+                                "type": "number",
+                                "default": 0.5
+                              }
+                            }
+                          }
+                        }
                       }
                     }
                   }
@@ -113,6 +181,7 @@
                   },
                   "timer": {
                     "type": "object",
+                    "required": false,
                     "properties": {
                       "enabled": {
                         "type": "boolean",
@@ -121,6 +190,94 @@
                       "delay": {
                         "type": "number",
                         "default": 30
+                      }
+                    }
+                  },
+                  "image": {
+                    "type": "string",
+                    "required": false
+                  },
+                  "camera": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "title": "Name of the camera",
+                        "default": "Camera"
+                      },
+                      "port": {
+                        "type": "number",
+                        "title": "Port",
+                        "default": 5000
+                      },
+                      "uploader": {
+                        "type": "boolean",
+                        "title": "Uploader",
+                        "default": false
+                      },
+                      "videoConfig": {
+                        "type": "object",
+                        "properties": {
+                          "source": {
+                            "type": "string",
+                            "title": "Video source",
+                            "default": "-rtsp_transport tcp -i rtsp://127.0.0.1:8554/stream"
+                          },
+                          "stillImageSource": {
+                            "type": "string",
+                            "title": "Image source",
+                            "default": "-rtsp_transport tcp -i rtsp://127.0.0.1:8554/stream -vframes 1"
+                          },
+                          "maxStreams": {
+                            "type": "number",
+                            "default": 2
+                          },
+                          "maxWidth": {
+                            "type": "number",
+                            "default": 1920
+                          },
+                          "maxHeight": {
+                            "type": "number",
+                            "default": 1080
+                          },
+                          "vcodec": {
+                            "type": "string",
+                            "default": "libx264"
+                          },
+                          "packetSize": {
+                            "type": "number",
+                            "default": 1316
+                          },
+                          "videoFilter": {
+                            "type": "string",
+                            "default": ""
+                          },
+                          "debug": {
+                            "type": "boolean",
+                            "default": false
+                          },
+                          "audio": {
+                            "type": "boolean",
+                            "default": false
+                          },
+                          "acodec": {
+                            "type": "string",
+                            "default": "libfdk_aac"
+                          },
+                          "lensCorrection": {
+                            "type": "object",
+                            "properties": {
+                              "k1": {
+                                "type": "number",
+                                "default": 0.5
+                              },
+                              "k2": {
+                                "type": "number",
+                                "default": 0.5
+                              }
+                            }
+                          }
+                        }
                       }
                     }
                   }
@@ -135,6 +292,7 @@
                   },
                   "timer": {
                     "type": "object",
+                    "required": false,
                     "properties": {
                       "enabled": {
                         "type": "boolean",
@@ -143,6 +301,94 @@
                       "delay": {
                         "type": "number",
                         "default": 30
+                      }
+                    }
+                  },
+                  "image": {
+                    "type": "string",
+                    "required": false
+                  },
+                  "camera": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "title": "Name of the camera",
+                        "default": "Camera"
+                      },
+                      "port": {
+                        "type": "number",
+                        "title": "Port",
+                        "default": 5000
+                      },
+                      "uploader": {
+                        "type": "boolean",
+                        "title": "Uploader",
+                        "default": false
+                      },
+                      "videoConfig": {
+                        "type": "object",
+                        "properties": {
+                          "source": {
+                            "type": "string",
+                            "title": "Video source",
+                            "default": "-rtsp_transport tcp -i rtsp://127.0.0.1:8554/stream"
+                          },
+                          "stillImageSource": {
+                            "type": "string",
+                            "title": "Image source",
+                            "default": "-rtsp_transport tcp -i rtsp://127.0.0.1:8554/stream -vframes 1"
+                          },
+                          "maxStreams": {
+                            "type": "number",
+                            "default": 2
+                          },
+                          "maxWidth": {
+                            "type": "number",
+                            "default": 1920
+                          },
+                          "maxHeight": {
+                            "type": "number",
+                            "default": 1080
+                          },
+                          "vcodec": {
+                            "type": "string",
+                            "default": "libx264"
+                          },
+                          "packetSize": {
+                            "type": "number",
+                            "default": 1316
+                          },
+                          "videoFilter": {
+                            "type": "string",
+                            "default": ""
+                          },
+                          "debug": {
+                            "type": "boolean",
+                            "default": false
+                          },
+                          "audio": {
+                            "type": "boolean",
+                            "default": false
+                          },
+                          "acodec": {
+                            "type": "string",
+                            "default": "libfdk_aac"
+                          },
+                          "lensCorrection": {
+                            "type": "object",
+                            "properties": {
+                              "k1": {
+                                "type": "number",
+                                "default": 0.5
+                              },
+                              "k2": {
+                                "type": "number",
+                                "default": 0.5
+                              }
+                            }
+                          }
+                        }
                       }
                     }
                   }
@@ -157,6 +403,7 @@
                   },
                   "timer": {
                     "type": "object",
+                    "required": false,
                     "properties": {
                       "enabled": {
                         "type": "boolean",
@@ -165,6 +412,94 @@
                       "delay": {
                         "type": "number",
                         "default": 30
+                      }
+                    }
+                  },
+                  "image": {
+                    "type": "string",
+                    "required": false
+                  },
+                  "camera": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "title": "Name of the camera",
+                        "default": "Camera"
+                      },
+                      "port": {
+                        "type": "number",
+                        "title": "Port",
+                        "default": 5000
+                      },
+                      "uploader": {
+                        "type": "boolean",
+                        "title": "Uploader",
+                        "default": false
+                      },
+                      "videoConfig": {
+                        "type": "object",
+                        "properties": {
+                          "source": {
+                            "type": "string",
+                            "title": "Video source",
+                            "default": "-rtsp_transport tcp -i rtsp://127.0.0.1:8554/stream"
+                          },
+                          "stillImageSource": {
+                            "type": "string",
+                            "title": "Image source",
+                            "default": "-rtsp_transport tcp -i rtsp://127.0.0.1:8554/stream -vframes 1"
+                          },
+                          "maxStreams": {
+                            "type": "number",
+                            "default": 2
+                          },
+                          "maxWidth": {
+                            "type": "number",
+                            "default": 1920
+                          },
+                          "maxHeight": {
+                            "type": "number",
+                            "default": 1080
+                          },
+                          "vcodec": {
+                            "type": "string",
+                            "default": "libx264"
+                          },
+                          "packetSize": {
+                            "type": "number",
+                            "default": 1316
+                          },
+                          "videoFilter": {
+                            "type": "string",
+                            "default": ""
+                          },
+                          "debug": {
+                            "type": "boolean",
+                            "default": false
+                          },
+                          "audio": {
+                            "type": "boolean",
+                            "default": false
+                          },
+                          "acodec": {
+                            "type": "string",
+                            "default": "libfdk_aac"
+                          },
+                          "lensCorrection": {
+                            "type": "object",
+                            "properties": {
+                              "k1": {
+                                "type": "number",
+                                "default": 0.5
+                              },
+                              "k2": {
+                                "type": "number",
+                                "default": 0.5
+                              }
+                            }
+                          }
+                        }
                       }
                     }
                   }
@@ -179,6 +514,118 @@
                   },
                   "timer": {
                     "type": "object",
+                    "required": false,
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "default": false
+                      },
+                      "delay": {
+                        "type": "number",
+                        "default": 30
+                      }
+                    }
+                  },
+                  "image": {
+                    "type": "string",
+                    "required": false
+                  },
+                  "camera": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "title": "Name of the camera",
+                        "default": "Camera"
+                      },
+                      "port": {
+                        "type": "number",
+                        "title": "Port",
+                        "default": 5000
+                      },
+                      "uploader": {
+                        "type": "boolean",
+                        "title": "Uploader",
+                        "default": false
+                      },
+                      "videoConfig": {
+                        "type": "object",
+                        "properties": {
+                          "source": {
+                            "type": "string",
+                            "title": "Video source",
+                            "default": "-rtsp_transport tcp -i rtsp://127.0.0.1:8554/stream"
+                          },
+                          "stillImageSource": {
+                            "type": "string",
+                            "title": "Image source",
+                            "default": "-rtsp_transport tcp -i rtsp://127.0.0.1:8554/stream -vframes 1"
+                          },
+                          "maxStreams": {
+                            "type": "number",
+                            "default": 2
+                          },
+                          "maxWidth": {
+                            "type": "number",
+                            "default": 1920
+                          },
+                          "maxHeight": {
+                            "type": "number",
+                            "default": 1080
+                          },
+                          "vcodec": {
+                            "type": "string",
+                            "default": "libx264"
+                          },
+                          "packetSize": {
+                            "type": "number",
+                            "default": 1316
+                          },
+                          "videoFilter": {
+                            "type": "string",
+                            "default": ""
+                          },
+                          "debug": {
+                            "type": "boolean",
+                            "default": false
+                          },
+                          "audio": {
+                            "type": "boolean",
+                            "default": false
+                          },
+                          "acodec": {
+                            "type": "string",
+                            "default": "libfdk_aac"
+                          },
+                          "lensCorrection": {
+                            "type": "object",
+                            "properties": {
+                              "k1": {
+                                "type": "number",
+                                "default": 0.5
+                              },
+                              "k2": {
+                                "type": "number",
+                                "default": 0.5
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "defaultDoorOpener": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "timer": {
+                    "type": "object",
+                    "required": false,
                     "properties": {
                       "enabled": {
                         "type": "boolean",
@@ -201,6 +648,7 @@
                   },
                   "timer": {
                     "type": "object",
+                    "required": false,
                     "properties": {
                       "enabled": {
                         "type": "boolean",
@@ -223,6 +671,7 @@
                   },
                   "timer": {
                     "type": "object",
+                    "required": false,
                     "properties": {
                       "enabled": {
                         "type": "boolean",
@@ -294,5 +743,97 @@
         }
       }
     }
-  }
+  },
+  "_layout": [
+    "name",
+    {
+      "type": "flex",
+      "flex-flow": "row wrap",
+      "items": [
+        "username",
+        {
+          "key": "password",
+          "type": "password"
+        }
+      ]
+    },
+    {
+      "type": "fieldset",
+      "title": "Devices",
+      "expandable": true,
+      "expanded": true,
+      "items": [
+        {
+          "key": "devices.HomeTouchPanel"
+        },
+        {
+          "key": "devices.HomeTouchPanel.enabled"
+        },
+        {
+          "key": "devices.HomeTouchPanel.automaticDoorOpener",
+          "expandable": true,
+          "expanded": true,
+          "items": {
+            "key": "devices.HomeTouchPanel.automaticDoorOpener.enabled"
+          }
+        },
+        {
+          "key": "devices.HomeTouchPanel.callLevelDoorCall",
+          "expandable": true,
+          "expanded": true,
+          "items": [
+            {
+              "key": "devices.HomeTouchPanel.callLevelDoorCall.enabled"
+            },{
+              "key": "devices.HomeTouchPanel.callLevelDoorCall.image"
+            },{
+              "key": "devices.HomeTouchPanel.callLevelDoorCall.camera",
+              "expandable": true,
+              "expanded": false,
+              "items": [
+                { "key": "devices.HomeTouchPanel.callLevelDoorCall.camera.name" },
+                { "key": "devices.HomeTouchPanel.callLevelDoorCall.camera.port" },
+                { "key": "devices.HomeTouchPanel.callLevelDoorCall.camera.uploader" },
+                { "key": "devices.HomeTouchPanel.callLevelDoorCall.camera.videoConfig",
+                "items": [
+                  {"key": "devices.HomeTouchPanel.callLevelDoorCall.camera.videoConfig.source"},
+                  {"key": "devices.HomeTouchPanel.callLevelDoorCall.camera.videoConfig.stillImageSource"},
+                  {"key": "devices.HomeTouchPanel.callLevelDoorCall.camera.videoConfig.maxStreams"},
+                  {"key": "devices.HomeTouchPanel.callLevelDoorCall.camera.videoConfig.maxWidth"},
+                  {"key": "devices.HomeTouchPanel.callLevelDoorCall.camera.videoConfig.maxHeight"},
+                  {"key": "devices.HomeTouchPanel.callLevelDoorCall.camera.videoConfig.vcodec"},
+                  {"key": "devices.HomeTouchPanel.callLevelDoorCall.camera.videoConfig.packetSize"},
+                  {"key": "devices.HomeTouchPanel.callLevelDoorCall.camera.videoConfig.videoFilter"},
+                  {"key": "devices.HomeTouchPanel.callLevelDoorCall.camera.videoConfig.debug"},
+                  {"key": "devices.HomeTouchPanel.callLevelDoorCall.camera.videoConfig.audio"},
+                  {"key": "devices.HomeTouchPanel.callLevelDoorCall.camera.videoConfig.acodec"},
+                  {"key": "devices.HomeTouchPanel.callLevelDoorCall.camera.videoConfig.lensCorrection",
+                  "items": [
+                    {"key": "devices.HomeTouchPanel.callLevelDoorCall.camera.videoConfig.lensCorrection.k1"},
+                    {"key": "devices.HomeTouchPanel.callLevelDoorCall.camera.videoConfig.lensCorrection.k2"}
+                  ]}
+                ]}
+              ]
+            }
+          ]
+        },
+        {
+          "key": "devices.HomeTouchPanel.doorCall1",
+          "expandable": true,
+          "expanded": true,
+          "items": {
+            "key": "devices.HomeTouchPanel.doorCall1.enabled"
+          }
+        },
+        {
+          "key": "devices.HomeTouchPanel.defaultDoorOpener",
+          "expandable": true,
+          "expanded": true,
+          "items": {
+            "key": "devices.HomeTouchPanel.defaultDoorOpener.enabled"
+          }
+        }
+      ]
+    }
+  ]
 }

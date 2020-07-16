@@ -20,7 +20,7 @@ import {AutomaticDoorOpenerHandler} from './services/AutomaticDoorOpenerHandler'
 import {DoorOpenerHandler} from './services/DoorOpenerHandler';
 import {LightHandler} from './services/LightHandler';
 import {DoorCallButtonHandler} from './services/DoorCallButtonHandler';
-import {TimedAccessoryHandler} from "./services/TimedAccessoryHandler";
+import {TimedAccessoryHandler} from './services/TimedAccessoryHandler';
 
 /**
  * HomebridgePlatform
@@ -143,8 +143,9 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
 
           let enabled = true;
 
-          if(subDeviceConfig && subDeviceConfig["enabled"] !== true)
+          if(subDeviceConfig && subDeviceConfig.enabled !== true) {
             enabled = false;
+          }
 
           // get device from freeathome-devices
           const subDevice: SubDevice = subDevices[key];
@@ -170,7 +171,7 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
             } else {
               this.log.info('Restoring existing accessory from cache:', accessory.displayName);
               accessory.getService(this.Service.AccessoryInformation)!
-                  .updateCharacteristic(this.Characteristic.Name, displayName);
+                .updateCharacteristic(this.Characteristic.Name, displayName);
             }
             accessories.push(accessory);
 
@@ -210,7 +211,7 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
               }
             } else if (subDevice instanceof AutomaticDoorOpener) {
               new AutomaticDoorOpenerHandler(this.log, this.api,
-                  accessory, subDevice as AutomaticDoorOpener, subDeviceConfig);
+                accessory, subDevice as AutomaticDoorOpener, subDeviceConfig);
             } else if (subDevice instanceof DoorOpener) {
               new DoorOpenerHandler(this.log, this.api, accessory, subDevice as DoorOpener, subDeviceConfig);
 
@@ -220,7 +221,7 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
 
             // timer
             if((subDevice instanceof AutomaticDoorOpener || subDevice instanceof DoorCall || subDevice instanceof DoorOpener) &&
-                subDeviceConfig != null && subDeviceConfig['timer'] != null && subDeviceConfig['timer']['enabled']) {
+                subDeviceConfig !== undefined && subDeviceConfig.timer !== undefined && subDeviceConfig.timer.enabled) {
               new TimedAccessoryHandler(this.log, this.api, accessory, subDevice, subDeviceConfig);
             }
           }
