@@ -1,7 +1,8 @@
 import { Logger } from "homebridge/lib/logger";
 import { Device, SubDevice } from "freeathome-devices";
-import { PlatformAccessory } from "homebridge";
+import {PlatformAccessory} from "homebridge";
 import { API } from "homebridge/lib/api";
+import { Service } from "hap-nodejs";
 
 export class DeviceHandler
 {
@@ -11,6 +12,7 @@ export class DeviceHandler
     protected readonly device: Device;
     protected readonly config?: Object;
 
+    protected informationService?: Service;
     protected loggingService?:any;
 
     constructor(log:Logger, api: API, accessory: PlatformAccessory, device: Device, config?: Object)
@@ -33,11 +35,12 @@ export class DeviceHandler
         if(this.device instanceof SubDevice)
             serialNumber += '.' + SubDevice.formatChannelString((this.device as SubDevice).channel);
 
-        this.accessory.getService(Service.AccessoryInformation)!
+        this.informationService = this.accessory.getService(Service.AccessoryInformation);
+        this.informationService!
             .setCharacteristic(Characteristic.Manufacturer, 'Busch-Jaeger')
             .setCharacteristic(Characteristic.Model, model)
             .setCharacteristic(Characteristic.SerialNumber, serialNumber)
-        ;
+            ;
     }
 
     protected setupLoggingService(type:'weather'|'energy'|'room'|'door'|'motion'|'switch'|'thermo'|'aqua')

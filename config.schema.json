@@ -28,6 +28,11 @@
         "type": "string",
         "required": true
       },
+      "autoReconnect": {
+        "title": "Auto reconnect",
+        "type": "boolean",
+        "default": true
+      },
       "devices": {
         "type": "object",
         "properties": {

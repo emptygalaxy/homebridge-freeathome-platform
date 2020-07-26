@@ -29,7 +29,7 @@
   "dependencies": {
     "crypto": "^1.0.1",
     "fakegato-history": "^0.5.6",
-    "freeathome-devices": "^1.0.12",
+    "freeathome-devices": "^1.0.13",
     "ip": "^1.1.5"
   },
   "devDependencies": {

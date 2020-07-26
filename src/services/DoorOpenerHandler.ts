@@ -73,6 +73,7 @@ export class DoorOpenerHandler extends DeviceHandler
         // logging
         this.log.info(this.doorOpener.getRoom()||'unknown',
             'getLockCurrentState', this.getLockCurrentStateString(lockCurrentState),
+            'lastUpdate', this.device.connection.lastUpdate,
         );
     }
 

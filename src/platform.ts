@@ -48,7 +48,7 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
       config.username,
       config.password,
     );
-    this.deviceManager = new DeviceManager(sysApConfig);
+    this.deviceManager = new DeviceManager(sysApConfig, config.autoReconnect);
 
 
     // When this event is fired it means Homebridge has restored all cached accessories from disk.
@@ -79,15 +79,9 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
    * must not be registered again to prevent 'duplicate UUID' errors.
    */
   discoverDevices() {
-
-    // EXAMPLE ONLY
-    // A real plugin you would discover accessories from the local network, cloud services
-    // or a user-defined array in the platform config.
-
+    this.deviceManager.on(ConnectionEvent.DEVICES, this.discoverWithDevices.bind(this));
     if(this.deviceManager.hasDeviceList()) {
       this.discoverWithDevices();
-    } else {
-      this.deviceManager.on(ConnectionEvent.DEVICES, this.discoverWithDevices.bind(this));
     }
   }
 
