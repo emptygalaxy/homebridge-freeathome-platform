@@ -48,7 +48,7 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
       config.username,
       config.password,
     );
-    this.deviceManager = new DeviceManager(sysApConfig, config.autoReconnect);
+    this.deviceManager = new DeviceManager(sysApConfig, config.autoReconnect || false);
 
 
     // When this event is fired it means Homebridge has restored all cached accessories from disk.
