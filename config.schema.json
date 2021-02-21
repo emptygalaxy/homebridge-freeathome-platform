@@ -61,6 +61,11 @@
                       "delay": {
                         "type": "number",
                         "default": 30
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": ["switch", "garagedoor"],
+                        "default": "switch"
                       }
                     }
                   }
@@ -84,6 +89,11 @@
                       "delay": {
                         "type": "number",
                         "default": 30
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": ["switch", "garagedoor"],
+                        "default": "switch"
                       }
                     }
                   },
@@ -195,6 +205,11 @@
                       "delay": {
                         "type": "number",
                         "default": 30
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": ["switch", "garagedoor"],
+                        "default": "switch"
                       }
                     }
                   },
@@ -306,6 +321,11 @@
                       "delay": {
                         "type": "number",
                         "default": 30
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": ["switch", "garagedoor"],
+                        "default": "switch"
                       }
                     }
                   },
@@ -417,6 +437,11 @@
                       "delay": {
                         "type": "number",
                         "default": 30
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": ["switch", "garagedoor"],
+                        "default": "switch"
                       }
                     }
                   },
@@ -528,6 +553,11 @@
                       "delay": {
                         "type": "number",
                         "default": 30
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": ["switch", "garagedoor"],
+                        "default": "switch"
                       }
                     }
                   },
@@ -639,6 +669,11 @@
                       "delay": {
                         "type": "number",
                         "default": 30
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": ["switch", "garagedoor"],
+                        "default": "switch"
                       }
                     }
                   }
@@ -662,6 +697,11 @@
                       "delay": {
                         "type": "number",
                         "default": 30
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": ["switch", "garagedoor"],
+                        "default": "switch"
                       }
                     }
                   }
@@ -685,6 +725,11 @@
                       "delay": {
                         "type": "number",
                         "default": 30
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": ["switch", "garagedoor"],
+                        "default": "switch"
                       }
                     }
                   }
@@ -707,6 +752,11 @@
                       "delay": {
                         "type": "number",
                         "default": 30
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": ["switch", "garagedoor"],
+                        "default": "switch"
                       }
                     }
                   }
@@ -729,6 +779,11 @@
                       "delay": {
                         "type": "number",
                         "default": 30
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": ["switch", "garagedoor"],
+                        "default": "switch"
                       }
                     }
                   }
