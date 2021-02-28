@@ -48,7 +48,13 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
       config.username,
       config.password,
     );
-    this.deviceManager = new DeviceManager(sysApConfig, config.autoReconnect || false);
+
+    let mqtt = this.config.mqtt;
+    if(this.config.mqtt && this.config.mqtt.enabled !== false) {
+      mqtt = this.config.mqtt;
+    }
+    this.log.info('mqtt', mqtt);
+    this.deviceManager = new DeviceManager(sysApConfig, config.autoReconnect || false, mqtt);
 
 
     // When this event is fired it means Homebridge has restored all cached accessories from disk.

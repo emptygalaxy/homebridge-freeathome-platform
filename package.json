@@ -29,8 +29,9 @@
   "dependencies": {
     "crypto": "^1.0.1",
     "fakegato-history": "^0.5.6",
-    "freeathome-devices": "^1.0.15",
-    "ip": "^1.1.5"
+    "freeathome-devices": "^1.0.16",
+    "ip": "^1.1.5",
+    "mqtt": "^4.2.6"
   },
   "devDependencies": {
     "@types/node": "^13.13.6",

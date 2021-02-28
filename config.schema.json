@@ -33,6 +33,30 @@
         "type": "boolean",
         "default": true
       },
+      "mqtt": {
+        "title": "MQTT",
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": true
+          },
+          "host": {
+            "type": "string",
+            "default": "127.0.0.1"
+          },
+          "port": {
+            "type": "number",
+            "default": 1883
+          },
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
       "devices": {
         "type": "object",
         "properties": {
