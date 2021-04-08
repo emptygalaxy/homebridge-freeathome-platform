@@ -1,25 +1,26 @@
 import { DeviceEvent, DoorOpener, DoorOpenerEvent} from "freeathome-devices";
 import { LockMechanism, ContactSensor } from "hap-nodejs/dist/lib/gen/HomeKit";
 import { CharacteristicGetCallback, CharacteristicEventTypes, CharacteristicValue, CharacteristicSetCallback } from "hap-nodejs";
-import { Logger } from "homebridge/lib/logger";
+import {Logging} from "homebridge/lib/logger";
 import { PlatformAccessory } from "homebridge";
 import { DeviceHandler } from "./DeviceHandler";
 import { API } from "homebridge/lib/api";
 
 export class DoorOpenerHandler extends DeviceHandler
 {
-    // freeathome
-    private readonly doorOpener:DoorOpener;
-
     // homebridge
     private readonly doorLockService:LockMechanism;
     private readonly contactSensorService:ContactSensor;
     private locking:boolean = false;
 
-    constructor(log: Logger, api: API, accessory: PlatformAccessory, doorOpener: DoorOpener, config?: Object)
-    {
+    constructor(
+        log: Logging,
+        api: API,
+        accessory: PlatformAccessory,
+        private doorOpener: DoorOpener,
+        config?: Object,
+    ) {
         super(log, api, accessory, doorOpener, config);
-        this.doorOpener = doorOpener;
 
         this.log.info(this.doorOpener.getRoom()||'unknown', 'Setting up door opener', this.doorOpener.isOpen());
 
@@ -47,6 +48,19 @@ export class DoorOpenerHandler extends DeviceHandler
 
         this.setupLoggingService('door');
         this.addLogEntry(false);
+    }
+
+    public setDevice(doorOpener: DoorOpener): void {
+
+        if(this.doorOpener) {
+            this.doorOpener.removeAllListeners(DoorOpenerEvent.OPENED);
+            this.doorOpener.removeAllListeners(DoorOpenerEvent.CLOSED);
+            this.doorOpener.removeAllListeners(DeviceEvent.CHANGE);
+        }
+
+        super.setDevice(doorOpener);
+        this.doorOpener = doorOpener;
+
 
         // listen for events
         // this.doorOpener.on(DoorOpenerEvent.OPEN, this.update.bind(this));
@@ -54,6 +68,8 @@ export class DoorOpenerHandler extends DeviceHandler
         this.doorOpener.on(DoorOpenerEvent.OPENED, this.opened.bind(this));
         this.doorOpener.on(DoorOpenerEvent.CLOSED, this.closed.bind(this));
         this.doorOpener.on(DeviceEvent.CHANGE, this.update.bind(this));
+
+        this.update();
     }
 
     /**
@@ -113,9 +129,9 @@ export class DoorOpenerHandler extends DeviceHandler
 
         if(this.locking == false) {
             this.log.info(this.doorOpener.getRoom()||'unknown', 'OPEN THE DOOR <=======================================================================');
-            this.doorOpener.open();
+            await this.doorOpener.open();
         } else {
-            this.doorOpener.close();
+            await this.doorOpener.close();
         }
 
         callback();

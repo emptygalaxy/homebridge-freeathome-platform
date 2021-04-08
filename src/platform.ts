@@ -1,4 +1,4 @@
-import {API, APIEvent, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig} from 'homebridge';
+import {API, APIEvent, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig} from 'homebridge';
 import {Characteristic, Service} from 'hap-nodejs';
 
 import {PLATFORM_NAME, PLUGIN_NAME} from './settings';
@@ -21,6 +21,7 @@ import {DoorOpenerHandler} from './services/DoorOpenerHandler';
 import {LightHandler} from './services/LightHandler';
 import {DoorCallButtonHandler} from './services/DoorCallButtonHandler';
 import {TimedAccessoryHandler} from './services/TimedAccessoryHandler';
+import {DeviceHandler} from './services/DeviceHandler';
 
 /**
  * HomebridgePlatform
@@ -36,13 +37,14 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
 
   private readonly deviceManager: DeviceManager;
 
+  private readonly handlers: {[uuid: string]: DeviceHandler } = {};
+  private readonly timerHandlers: {[uuid: string]: TimedAccessoryHandler } = {};
+
   constructor(
-    public readonly log: Logger,
+    public readonly log: Logging,
     public readonly config: PlatformConfig,
     public readonly api: API,
   ) {
-    this.log.debug('Finished initializing platform:', this.config.name);
-
     const sysApConfig: ClientConfiguration = new ClientConfiguration(
       config.hostname,
       config.username,
@@ -54,8 +56,9 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
       mqtt = this.config.mqtt;
     }
     this.log.info('mqtt', mqtt);
-    this.deviceManager = new DeviceManager(sysApConfig, config.autoReconnect || false, mqtt);
 
+    const timeout = (config.timeout || 1) * (60 * 1000);
+    this.deviceManager = new DeviceManager(sysApConfig, this.log, config.autoReconnect || false, timeout, mqtt);
 
     // When this event is fired it means Homebridge has restored all cached accessories from disk.
     // Dynamic Platform plugins should only register new accessories after this event was fired,
@@ -73,7 +76,7 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
    * It should be used to setup event handlers for characteristics and update respective values.
    */
   configureAccessory(accessory: PlatformAccessory) {
-    this.log.info('Loading accessory from cache:', accessory.displayName);
+    this.log.info('Loading accessory from cache:', accessory.displayName, accessory.UUID);
 
     // add the restored accessory to the accessories cache so we can track if it has already been registered
     this.accessories.push(accessory);
@@ -165,11 +168,11 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
 
             let accessory = existingAccessory;
             if (accessory === undefined) {
-              this.log.info('Adding new accessory:', displayName);
+              this.log.debug('Adding new accessory:', displayName, uuid);
               accessory = new this.api.platformAccessory(displayName, uuid);
               newAccessories.push(accessory);
             } else {
-              this.log.info('Restoring existing accessory from cache:', accessory.displayName);
+              this.log.debug('Restoring existing accessory from cache:', accessory.displayName, uuid);
               accessory.getService(this.Service.AccessoryInformation)!
                 .updateCharacteristic(this.Characteristic.Name, displayName);
             }
@@ -199,30 +202,42 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
             // accessories.push(accessory);
             // }
 
+            let handler: DeviceHandler|undefined = this.handlers[uuid];
 
-            if (subDevice instanceof DoorCall) {
-              const doorCall: DoorCall = subDevice as DoorCall;
-              if (doorCall.triggerEnabled()) {
-                new DoorCallButtonHandler(this.log, this.api, accessory, doorCall, subDeviceConfig);
-                // new DoorCallHandler(this.log, this.api, accessory, doorCall, subDeviceConfig);
-                // new TimedDoorOpenerHandler(this.log, this.api, accessory, doorCall, subDeviceConfig);
-              } else {
-                new DoorCallHandler(this.log, this.api, accessory, doorCall, subDeviceConfig);
+            if(!handler) {
+              if (subDevice instanceof DoorCall) {
+                const doorCall: DoorCall = subDevice as DoorCall;
+                if (doorCall.triggerEnabled()) {
+                  handler = new DoorCallButtonHandler(this.log, this.api, accessory, doorCall, subDeviceConfig);
+                } else {
+                  handler = new DoorCallHandler(this.log, this.api, accessory, doorCall, subDeviceConfig);
+                }
+              } else if (subDevice instanceof AutomaticDoorOpener) {
+                handler = new AutomaticDoorOpenerHandler(this.log, this.api,
+                  accessory, subDevice as AutomaticDoorOpener, subDeviceConfig);
+              } else if (subDevice instanceof DoorOpener) {
+                handler = new DoorOpenerHandler(this.log, this.api, accessory, subDevice as DoorOpener, subDeviceConfig);
+              } else if (subDevice instanceof Light) {
+                handler = new LightHandler(this.log, this.api, accessory, subDevice as Light, subDeviceConfig);
               }
-            } else if (subDevice instanceof AutomaticDoorOpener) {
-              new AutomaticDoorOpenerHandler(this.log, this.api,
-                accessory, subDevice as AutomaticDoorOpener, subDeviceConfig);
-            } else if (subDevice instanceof DoorOpener) {
-              new DoorOpenerHandler(this.log, this.api, accessory, subDevice as DoorOpener, subDeviceConfig);
 
-            } else if (subDevice instanceof Light) {
-              new LightHandler(this.log, this.api, accessory, subDevice as Light, subDeviceConfig);
+              this.handlers[uuid] = handler;
             }
 
+            // set device
+            handler.setDevice(subDevice);
+
+            let timerHandler: TimedAccessoryHandler|undefined = this.timerHandlers[uuid];
+
             // timer
-            if((subDevice instanceof AutomaticDoorOpener || subDevice instanceof DoorCall || subDevice instanceof DoorOpener) &&
-                subDeviceConfig !== undefined && subDeviceConfig.timer !== undefined && subDeviceConfig.timer.enabled) {
-              new TimedAccessoryHandler(this.log, this.api, accessory, subDevice, subDeviceConfig);
+            if(!timerHandler) {
+              if ((subDevice instanceof AutomaticDoorOpener || subDevice instanceof DoorCall || subDevice instanceof DoorOpener) &&
+                  subDeviceConfig !== undefined && subDeviceConfig.timer !== undefined && subDeviceConfig.timer.enabled) {
+                timerHandler = new TimedAccessoryHandler(this.log, this.api, accessory, subDevice, subDeviceConfig);
+              }
+              this.timerHandlers[uuid] = timerHandler;
+            } else {
+              // timerHandler.setDevice(subDevice);
             }
           }
         }
@@ -231,7 +246,8 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
 
     // this.log.info('========');
     newAccessories.forEach((cachedAccessory: PlatformAccessory) => {
-      this.log.info('New accessory', cachedAccessory.displayName, cachedAccessory.constructor.name, cachedAccessory.UUID);
+      this.log.debug('New accessory', cachedAccessory.displayName, cachedAccessory.constructor.name, cachedAccessory.UUID);
+      this.accessories.push(cachedAccessory);
     });
     // this.log.info('========');
     // accessories.forEach((cachedAccessory: PlatformAccessory) => {
@@ -240,10 +256,10 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
     // this.log.info('========');
 
     this.accessories.forEach((cachedAccessory: PlatformAccessory, index: number) => {
-      this.log.info('Cached accessory', cachedAccessory.displayName, cachedAccessory.constructor.name, cachedAccessory.UUID);
+      this.log.debug('Cached accessory', cachedAccessory.displayName, cachedAccessory.constructor.name, cachedAccessory.UUID);
 
       if(accessories.find(accessory => accessory.UUID === cachedAccessory.UUID) === undefined) {
-        this.log.info('Remove accessory', cachedAccessory.displayName, cachedAccessory.constructor.name, cachedAccessory.UUID);
+        this.log.debug('Remove accessory', cachedAccessory.displayName, cachedAccessory.constructor.name, cachedAccessory.UUID);
         expiredAccessories.push(cachedAccessory);
         this.accessories.splice(index, 1);
       }

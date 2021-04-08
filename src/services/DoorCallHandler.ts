@@ -1,17 +1,16 @@
-import { DoorCall, DoorCallEvent } from "freeathome-devices";
+import {DoorCall, DoorCallEvent} from "freeathome-devices";
 import { Doorbell, MotionSensor } from "hap-nodejs/dist/lib/gen/HomeKit";
 import { CharacteristicGetCallback, CharacteristicEventTypes } from "hap-nodejs";
-import { Logger } from "homebridge/lib/logger";
+import {Logging} from "homebridge/lib/logger";
 import { PlatformAccessory } from "homebridge";
 import { DeviceHandler } from "./DeviceHandler";
-import { CameraConfig, FFMPEG } from "../FFMPEG";
 import { API } from "homebridge/lib/api";
+import {StreamingDelegate} from "homebridge-camera-ffmpeg/dist/streamingDelegate";
+import {Logger as HCFLogger} from "homebridge-camera-ffmpeg/dist/Logger";
+import {CameraConfig} from "homebridge-camera-ffmpeg/dist/configTypes";
 
 export class DoorCallHandler extends DeviceHandler
 {
-    // freeathome
-    protected readonly doorCall:DoorCall;
-
     // homebridge
     private readonly doorbellService?:Doorbell;
     private readonly motionService:MotionSensor;
@@ -19,10 +18,14 @@ export class DoorCallHandler extends DeviceHandler
     protected readonly restoreTime: number = 5000;
     protected restoreTimeoutId: NodeJS.Timeout | null = null;
 
-    constructor(log: Logger, api: API, accessory: PlatformAccessory, doorCall: DoorCall, config?: Object) {
+    constructor(
+        log: Logging,
+        api: API,
+        accessory: PlatformAccessory,
+        protected doorCall: DoorCall,
+        config?: Object,
+    ) {
         super(log, api, accessory, doorCall, config);
-
-        this.doorCall = doorCall;
 
         // hap
         const Service = this.api.hap.Service;
@@ -42,20 +45,33 @@ export class DoorCallHandler extends DeviceHandler
         this.motionService.getCharacteristic(this.api.hap.Characteristic.MotionDetected)
             .on(CharacteristicEventTypes.GET, this.getMotionDetected.bind(this));
 
-        // listen for events
-        this.doorCall.on(DoorCallEvent.TRIGGER, this.handleTrigger.bind(this));
-        this.doorCall.on(DoorCallEvent.TRIGGERED, this.triggered.bind(this));
-
         // logging service
         this.setupLoggingService('motion');
         this.addLogEntry(false);
 
         if(cameraConfig) {
-            let videoProcessor: string = 'ffmpeg';
+            const logger = new HCFLogger(this.log);
 
-            let cameraSource = new FFMPEG(accessory, this.api.hap, cameraConfig, this.log, videoProcessor);
-            accessory.configureCameraSource(cameraSource);
+            let videoProcessor: string = 'ffmpeg';
+            const delegate = new StreamingDelegate(logger, cameraConfig, this.api, this.api.hap, videoProcessor);
+            accessory.configureController(delegate.controller);
         }
+    }
+
+    public setDevice(doorCall: DoorCall): void
+    {
+        if(this.doorCall) {
+            // unsubscribe
+            this.doorCall.removeAllListeners(DoorCallEvent.TRIGGER);
+            this.doorCall.removeAllListeners(DoorCallEvent.TRIGGERED);
+        }
+
+        super.setDevice(doorCall);
+        this.doorCall = doorCall;
+
+        // listen for events
+        this.doorCall.on(DoorCallEvent.TRIGGER, this.handleTrigger.bind(this));
+        this.doorCall.on(DoorCallEvent.TRIGGERED, this.triggered.bind(this));
     }
 
     private static getCameraConfig(config?: Object): CameraConfig|undefined {

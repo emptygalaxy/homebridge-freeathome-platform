@@ -1,16 +1,16 @@
-import {DeviceHandler} from "./DeviceHandler";
-import {Logger} from "homebridge/lib/logger";
-import {API} from "homebridge/lib/api";
-import {PlatformAccessory} from "homebridge/lib/platformAccessory";
-import {AutomaticDoorOpener, DoorCall, DoorOpener} from "freeathome-devices";
+import { DeviceHandler } from "./DeviceHandler";
+import { Logging } from "homebridge/lib/logger";
+import { API } from "homebridge/lib/api";
+import { PlatformAccessory } from "homebridge/lib/platformAccessory";
+import { AutomaticDoorOpener, DoorCall, DoorOpener } from "freeathome-devices";
 import { Switch, GarageDoorOpener } from "hap-nodejs/dist/lib/gen/HomeKit";
 import { Service, CharacteristicValue, CharacteristicGetCallback, CharacteristicEventTypes, CharacteristicSetCallback, Perms } from "hap-nodejs";
 import Timeout = NodeJS.Timeout;
-import {CreateSlider} from "../types/Slider";
-import {CreateSliderValue} from "../types/SliderValue";
-import {CreateSwitchProgram} from "../types/SwitchProgram";
-import {CreateAutomaticOff} from "../types/AutomaticOff";
-import {CreatePeriodInSeconds} from "../types/PeriodInSeconds";
+import { CreateSlider } from "../types/Slider";
+import { CreateSliderValue } from "../types/SliderValue";
+import { CreateSwitchProgram } from "../types/SwitchProgram";
+import { CreateAutomaticOff } from "../types/AutomaticOff";
+import { CreatePeriodInSeconds } from "../types/PeriodInSeconds";
 
 let SwitchProgram, AutomaticOff, PeriodInSeconds, Slider, SliderValue;
 
@@ -21,7 +21,7 @@ export class TimedAccessoryHandler extends DeviceHandler
     private readonly switchProgramService: Service;
     private readonly sliderService?: Service;
 
-    private maxDelay: number = 15 * 60;
+    private readonly maxDelay: number = 15 * 60;
     private armed: boolean = false;
     private delay: number = 170;
     private timeLeft: number = 0;
@@ -31,8 +31,13 @@ export class TimedAccessoryHandler extends DeviceHandler
     private readonly tickEnabled: boolean = true;
     private readonly tickFrequency = 1000;
 
-    constructor(log: Logger, api: API, accessory: PlatformAccessory, device: AutomaticDoorOpener|DoorCall|DoorOpener, config?: Object)
-    {
+    constructor(
+        log: Logging,
+        api: API,
+        accessory: PlatformAccessory,
+        device: AutomaticDoorOpener|DoorCall|DoorOpener,
+        config?: Object,
+    ) {
         super(log, api, accessory, device, config);
 
         // hap
@@ -110,6 +115,10 @@ export class TimedAccessoryHandler extends DeviceHandler
                 })
             ;
         }
+    }
+
+    public setDevice(device: AutomaticDoorOpener|DoorCall|DoorOpener): void {
+        super.setDevice(device);
     }
 
     /**
@@ -281,15 +290,15 @@ export class TimedAccessoryHandler extends DeviceHandler
         }
     }
 
-    private timerEnded(): void
+    private async timerEnded(): Promise<void>
     {
         // invoke action
         if(this.device instanceof AutomaticDoorOpener)
-            this.device.enable();
+            await this.device.enable();
         else if(this.device instanceof DoorCall)
-            this.device.trigger();
+            await this.device.trigger();
         else if(this.device instanceof DoorOpener)
-            this.device.open();
+            await this.device.open();
 
         this.disarm();
 

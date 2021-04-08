@@ -1,7 +1,7 @@
 import { DoorCall } from "freeathome-devices";
 import { Switch } from "hap-nodejs/dist/lib/gen/HomeKit";
 import { CharacteristicGetCallback, CharacteristicEventTypes, CharacteristicValue, CharacteristicSetCallback } from "hap-nodejs";
-import { Logger } from "homebridge/lib/logger";
+import {Logging} from "homebridge/lib/logger";
 import { PlatformAccessory } from "homebridge";
 import { DoorCallHandler } from "./DoorCallHandler";
 import { API } from "homebridge/lib/api";
@@ -11,8 +11,13 @@ export class DoorCallButtonHandler extends DoorCallHandler
     private readonly switchService: Switch;
     private switchActive = false;
 
-    constructor(log:Logger, api: API, accessory:PlatformAccessory, doorCall:DoorCall, config?:Object)
-    {
+    constructor(
+        log: Logging,
+        api: API,
+        accessory:PlatformAccessory,
+        doorCall:DoorCall,
+        config?:Object,
+    ) {
         super(log, api, accessory, doorCall, config);
 
         if(!this.doorCall.triggerEnabled())

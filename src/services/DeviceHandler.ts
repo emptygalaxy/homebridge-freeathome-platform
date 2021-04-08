@@ -1,4 +1,4 @@
-import { Logger } from "homebridge/lib/logger";
+import {Logging} from "homebridge/lib/logger";
 import { Device, SubDevice } from "freeathome-devices";
 import {PlatformAccessory} from "homebridge";
 import { API } from "homebridge/lib/api";
@@ -6,23 +6,16 @@ import { Service } from "hap-nodejs";
 
 export class DeviceHandler
 {
-    protected readonly log: Logger;
-    protected readonly api: API;
-    protected readonly accessory: PlatformAccessory;
-    protected readonly device: Device;
-    protected readonly config?: Object;
-
     protected informationService?: Service;
     protected loggingService?:any;
 
-    constructor(log:Logger, api: API, accessory: PlatformAccessory, device: Device, config?: Object)
-    {
-        this.log = log;
-        this.api = api;
-        this.accessory = accessory;
-        this.device = device;
-        this.config = config;
-
+    constructor(
+        protected readonly log:Logging,
+        protected readonly api: API,
+        protected readonly accessory: PlatformAccessory,
+        protected device: Device,
+        protected readonly config?: Object,
+    ) {
         // hap
         const Service = this.api.hap.Service;
         const Characteristic = this.api.hap.Characteristic;
@@ -41,6 +34,11 @@ export class DeviceHandler
             .setCharacteristic(Characteristic.Model, model)
             .setCharacteristic(Characteristic.SerialNumber, serialNumber)
             ;
+    }
+
+    public setDevice(device: Device): void
+    {
+        this.device = device;
     }
 
     protected setupLoggingService(type:'weather'|'energy'|'room'|'door'|'motion'|'switch'|'thermo'|'aqua')

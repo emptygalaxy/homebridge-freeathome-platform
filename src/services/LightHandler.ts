@@ -1,24 +1,25 @@
 import { Light, LightEvent } from "freeathome-devices";
 import { Lightbulb } from "hap-nodejs/dist/lib/gen/HomeKit";
 import { CharacteristicGetCallback, CharacteristicEventTypes, CharacteristicValue,  CharacteristicSetCallback } from "hap-nodejs";
-import { Logger } from "homebridge/lib/logger";
+import {Logging} from "homebridge/lib/logger";
 import { PlatformAccessory } from "homebridge";
 import { DeviceHandler } from "./DeviceHandler";
 import { API } from "homebridge/lib/api";
 
 export class LightHandler extends DeviceHandler
 {
-    // freeathome
-    private readonly light:Light;
-
     // homebridge
     private lightService:Lightbulb;
 
-    constructor(log: Logger, api: API, accessory: PlatformAccessory, light: Light, config?: Object)
-    {
+    constructor(
+        log: Logging,
+        api: API,
+        accessory: PlatformAccessory,
+        private light: Light,
+        config?: Object,
+    ) {
         super(log, api, accessory, light, config);
 
-        this.light = light;
         this.log.info(this.light.getRoom()||'unknown', 'Set up light');
 
         // hap
@@ -35,10 +36,23 @@ export class LightHandler extends DeviceHandler
         // logging service
         this.setupLoggingService('switch');
         this.addLogEntry(this.light.isOn());
+    }
+
+    public setDevice(light: Light): void {
+
+        if(this.light) {
+            this.light.removeAllListeners(LightEvent.TURNED_ON);
+            this.light.removeAllListeners(LightEvent.TURNED_OFF);
+        }
+
+        super.setDevice(light);
+        this.light = light;
 
         // listen for events
         this.light.on(LightEvent.TURNED_ON, this.update.bind(this));
         this.light.on(LightEvent.TURNED_OFF, this.update.bind(this));
+
+        this.update();
     }
 
     private update()
@@ -67,9 +81,9 @@ export class LightHandler extends DeviceHandler
         this.log.info(this.light.getRoom()||'unknown', 'Set light on: ' + value);
 
         if(value === true)
-            this.light.turnOn();
+            await this.light.turnOn();
         else
-            this.light.turnOff();
+            await this.light.turnOff();
 
         callback();
     }

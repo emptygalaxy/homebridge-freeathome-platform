@@ -31,7 +31,14 @@
       "autoReconnect": {
         "title": "Auto reconnect",
         "type": "boolean",
+        "required": false,
         "default": true
+      },
+      "timeout": {
+        "title": "Timeout",
+        "type": "number",
+        "required": false,
+        "default": 1
       },
       "mqtt": {
         "title": "MQTT",
