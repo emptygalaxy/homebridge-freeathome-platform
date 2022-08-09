@@ -31,7 +31,7 @@
     "fakegato-history": "^0.5.6",
     "freeathome-devices": "^1.0.21",
     "homebridge-camera-ffmpeg": "^3.1.2",
-    "ip": "^1.1.5",
+    "ip": "^1.1.8",
     "mqtt": "^4.2.6"
   },
   "devDependencies": {
