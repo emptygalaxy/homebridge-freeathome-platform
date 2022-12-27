@@ -1,18 +1,9 @@
-import {API, APIEvent, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig} from 'homebridge';
-import {Characteristic, Service} from 'hap-nodejs';
+import type {API, Characteristic, DynamicPlatformPlugin, Logging, PlatformAccessory, Service} from 'homebridge';
+import {APIEvent} from 'homebridge';
 
 import {PLATFORM_NAME, PLUGIN_NAME} from './settings';
 
-import {
-  AutomaticDoorOpener,
-  Device,
-  DeviceManager,
-  DoorCall,
-  DoorOpener,
-  HomeTouchPanel,
-  Light,
-  SubDevice,
-} from 'freeathome-devices';
+import {AutomaticDoorOpener, Device, DeviceManager, DoorCall, DoorOpener, HomeTouchPanel, Light, SubDevice} from 'freeathome-devices';
 import {ClientConfiguration} from 'freeathome-api';
 import {DoorCallHandler} from './services/DoorCallHandler';
 import {ConnectionEvent} from 'freeathome-devices/dist/Connection';
@@ -22,6 +13,7 @@ import {LightHandler} from './services/LightHandler';
 import {DoorCallButtonHandler} from './services/DoorCallButtonHandler';
 import {TimedAccessoryHandler} from './services/TimedAccessoryHandler';
 import {DeviceHandler} from './services/DeviceHandler';
+import {DeviceConfig, DoorCallConfig, DoorOpenerConfig, FreeAtHomePlatformConfig, TimerDeviceConfig} from './FreeAtHomePlatformConfig';
 
 /**
  * HomebridgePlatform
@@ -37,22 +29,22 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
 
   private readonly deviceManager: DeviceManager;
 
-  private readonly handlers: {[uuid: string]: DeviceHandler } = {};
-  private readonly timerHandlers: {[uuid: string]: TimedAccessoryHandler } = {};
+  private readonly handlers: { [uuid: string]: DeviceHandler } = {};
+  private readonly timerHandlers: { [uuid: string]: TimedAccessoryHandler } = {};
 
   constructor(
     public readonly log: Logging,
-    public readonly config: PlatformConfig,
+    public readonly config: FreeAtHomePlatformConfig,
     public readonly api: API,
   ) {
     const sysApConfig: ClientConfiguration = new ClientConfiguration(
-      config.hostname,
-      config.username,
-      config.password,
+      config.hostname || '127.0.0.1',
+      config.username || '',
+      config.password || '',
     );
 
     let mqtt = this.config.mqtt;
-    if(this.config.mqtt && this.config.mqtt.enabled !== false) {
+    if (this.config.mqtt && this.config.mqtt.enabled) {
       mqtt = this.config.mqtt;
     }
     this.log.info('mqtt', mqtt);
@@ -89,7 +81,7 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
    */
   discoverDevices() {
     this.deviceManager.on(ConnectionEvent.DEVICES, this.discoverWithDevices.bind(this));
-    if(this.deviceManager.hasDeviceList()) {
+    if (this.deviceManager.hasDeviceList()) {
       this.discoverWithDevices();
     }
   }
@@ -101,20 +93,22 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
     const newAccessories: PlatformAccessory[] = [];
     const expiredAccessories: PlatformAccessory[] = [];
 
-    this.log.info('Found '+devices.length + ' devices');
-    for(const device of devices) {
-      const deviceConfig = this.config.devices[device.serialNumber] || this.config.devices[device.constructor.name];
-      if(deviceConfig && deviceConfig.enabled === false) {
+    this.log.info('Found ' + devices.length + ' devices');
+    for (const device of devices) {
+      const deviceConfig = this.config.devices ?
+        this.config.devices[device.serialNumber] || this.config.devices[device.constructor.name] :
+        undefined;
+      if (deviceConfig && !deviceConfig.enabled) {
         continue;
       }
 
-      if(device instanceof HomeTouchPanel) {
+      if (device instanceof HomeTouchPanel) {
         const panel: HomeTouchPanel = device as HomeTouchPanel;
-        let subDevices: {[channel: string]: SubDevice} = {};
+        let subDevices: { [channel: string]: SubDevice } = {};
 
-        if(deviceConfig) {
+        if (deviceConfig) {
           for (const key in panel) {
-            if(panel[key] instanceof SubDevice && deviceConfig[key] && deviceConfig[key].enabled) {
+            if (panel[key] instanceof SubDevice && deviceConfig[key] && deviceConfig[key].enabled) {
               subDevices[key] = panel[key];
             }
           }
@@ -142,11 +136,12 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
           // }
 
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const subDeviceConfig: Record<string, any> | undefined = deviceConfig[key];
+          const subDeviceConfig: DeviceConfig | TimerDeviceConfig | DoorCallConfig | DoorOpenerConfig | undefined =
+            deviceConfig ? deviceConfig[key] : undefined;
 
           let enabled = true;
 
-          if(subDeviceConfig && subDeviceConfig.enabled !== true) {
+          if (subDeviceConfig && !subDeviceConfig.enabled) {
             enabled = false;
           }
 
@@ -160,7 +155,7 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
           // check if it existed already
           const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
-          if (enabled === true) {
+          if (enabled) {
             let displayName: string = subDevice.constructor.name;
             if (subDevice.getRoom()) {
               displayName = subDevice.getRoom() + ' ' + displayName;
@@ -202,9 +197,9 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
             // accessories.push(accessory);
             // }
 
-            let handler: DeviceHandler|undefined = this.handlers[uuid];
+            let handler: DeviceHandler | undefined = this.handlers[uuid];
 
-            if(!handler) {
+            if (!handler) {
               if (subDevice instanceof DoorCall) {
                 const doorCall: DoorCall = subDevice as DoorCall;
                 if (doorCall.triggerEnabled()) {
@@ -227,12 +222,15 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
             // set device
             handler.setDevice(subDevice);
 
-            let timerHandler: TimedAccessoryHandler|undefined = this.timerHandlers[uuid];
+            let timerHandler: TimedAccessoryHandler | undefined = this.timerHandlers[uuid];
 
             // timer
-            if(!timerHandler) {
-              if ((subDevice instanceof AutomaticDoorOpener || subDevice instanceof DoorCall || subDevice instanceof DoorOpener) &&
-                  subDeviceConfig !== undefined && subDeviceConfig.timer !== undefined && subDeviceConfig.timer.enabled) {
+            if (!timerHandler) {
+              if ((subDevice instanceof AutomaticDoorOpener || subDevice instanceof DoorCall || subDevice instanceof DoorOpener)
+                && subDeviceConfig !== undefined
+                && 'timer' in subDeviceConfig
+                && subDeviceConfig.timer !== undefined
+                && subDeviceConfig?.timer?.enabled) {
                 timerHandler = new TimedAccessoryHandler(this.log, this.api, accessory, subDevice, subDeviceConfig);
               }
               this.timerHandlers[uuid] = timerHandler;
@@ -258,7 +256,7 @@ export class FreeAtHomePlatform implements DynamicPlatformPlugin {
     this.accessories.forEach((cachedAccessory: PlatformAccessory, index: number) => {
       this.log.debug('Cached accessory', cachedAccessory.displayName, cachedAccessory.constructor.name, cachedAccessory.UUID);
 
-      if(accessories.find(accessory => accessory.UUID === cachedAccessory.UUID) === undefined) {
+      if (accessories.find(accessory => accessory.UUID === cachedAccessory.UUID) === undefined) {
         this.log.debug('Remove accessory', cachedAccessory.displayName, cachedAccessory.constructor.name, cachedAccessory.UUID);
         expiredAccessories.push(cachedAccessory);
         this.accessories.splice(index, 1);

@@ -1,7 +1,7 @@
-import { API } from 'homebridge';
+import type {API} from 'homebridge';
 
-import { PLATFORM_NAME } from './settings';
-import { FreeAtHomePlatform } from './platform';
+import {PLATFORM_NAME} from './settings';
+import {FreeAtHomePlatform} from './platform';
 
 /**
  * This method registers the platform with Homebridge

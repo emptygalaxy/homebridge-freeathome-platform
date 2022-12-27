@@ -1,150 +1,216 @@
+# Busch Jaeger/Free@home Homebridge Plugin
 
-<p align="center">
+This is a Homebridge plugin for exposing Busch Jaeger/Free@home devices using the required SysAp.
 
-<img src="https://github.com/homebridge/branding/raw/master/logos/homebridge-wordmark-logo-vertical.png" width="150">
+## Features
 
-</p>
+Here are some of the features of this plugin:
 
+- Expose all of your Busch Jaeger/Free@home devices to HomeKit
+- Control your devices using Siri and the Home app
+- Configurable MQTT support for integration with other home automation systems
+- Automatic reconnection to the SysAp when the connection is lost
+- Device and timer configuration options for customized behavior
+- Camera support for door calls  (with optional lens correction)
 
-# Homebridge Platform Plugin Template
+## Configuration
 
-This is a template Homebridge platform plugin and can be used as a base to help you get started developing your own plugin.
+Add the following information to your `config.json` file:
 
-This template should be use in conjunction with the [developer documentation](https://developers.homebridge.io/). A full list of all supported service types, and their characteristics is available on this site.
+```json
 
-## Clone As Template
-
-Click the link below to create a new GitHub Repository using this template, or click the *Use This Template* button above.
-
-<span align="center">
-
-### [Create New Repository From Template](https://github.com/homebridge/homebridge-plugin-template/generate)
-
-</span>
-
-## Setup Development Environment
-
-To develop Homebridge plugins you must have Node.js 12 or later installed, and a modern code editor such as [VS Code](https://code.visualstudio.com/). This plugin template uses [TypeScript](https://www.typescriptlang.org/) to make development easier and comes with pre-configured settings for [VS Code](https://code.visualstudio.com/) and ESLint. If you are using VS Code install these extensions:
-
-* [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
-
-## Install Development Dependencies
-
-Using a terminal, navigate to the project folder and run this command to install the development dependencies:
-
-```
-npm install
-```
-
-## Update package.json
-
-Open the [`package.json`](./package.json) and change the following attributes:
-
-* `name` - this should be prefixed with `homebridge-` or `@username/homebridge-` and contain no spaces or special characters apart from a dashes
-* `displayName` - this is the "nice" name displayed in the Homebridge UI
-* `repository.url` - Link to your GitHub repo
-* `bugs.url` - Link to your GitHub repo issues page
-
-When you are ready to publish the plugin you should set `private` to false, or remove the attribute entirely.
-
-## Update Plugin Defaults
-
-Open the [`src/settings.ts`](./src/settings.ts) file and change the default values:
-
-* `PLATFORM_NAME` - Set this to be the name of your platform. This is the name of the platform that users will use to register the plugin in the Homebridge `config.json`.
-* `PLUGIN_NAME` - Set this to be the same name you set in the [`package.json`](./package.json) file. 
-
-Open the [`config.schema.json`](./config.schema.json) file and change the following attribute:
-
-* `pluginAlias` - set this to match the `PLATFORM_NAME` you defined in the previous step.
-
-## Build Plugin
-
-TypeScript needs to be compiled into JavaScript before it can run. The following command will compile the contents of your [`src`](./src) directory and put the resulting code into the `dist` folder.
-
-```
-npm run build
-```
-
-## Link To Homebridge
-
-Run this command so your global install of Homebridge can discover the plugin in your development environment:
-
-```
-npm link
-```
-
-You can now start Homebridge, use the `-D` flag so you can see debug log messages in your plugin:
-
-```
-homebridge -D
-```
-
-## Watch For Changes and Build Automatically
-
-If you want to have your code compile automatically as you make changes, and restart Homebridge automatically between changes you can run:
-
-```
-npm run watch
-```
-
-This will launch an instance of Homebridge in debug mode which will restart every time you make a change to the source code. It will the config stored in the default location under `~/.homebridge`. You may need to stop other running instances of Homebridge while using this command to prevent conflicts. You can adjust the Homebridge startup command in the [`nodemon.json`](./nodemon.json) file.
-
-## Customise Plugin
-
-You can now start customising the plugin template to suit your requirements.
-
-* [`src/platform.ts`](./src/platform.ts) - this is where your device setup and discovery should go.
-* [`src/platformAccessory.ts`](./src/platformAccessory.ts) - this is where your accessory control logic should go, you can rename or create multiple instances of this file for each accessory type you need to implement as part of your platform plugin. You can refer to the [developer documentation](https://developers.homebridge.io/) to see what characteristics you need to implement for each service type.
-* [`config.schema.json`](./config.schema.json) - update the config schema to match the config you expect from the user. See the [Plugin Config Schema Documentation](https://developers.homebridge.io/#/config-schema).
-
-## Versioning Your Plugin
-
-Given a version number `MAJOR`.`MINOR`.`PATCH`, such as `1.4.3`, increment the:
-
-1. **MAJOR** version when you make breaking changes to your plugin,
-2. **MINOR** version when you add functionality in a backwards compatible manner, and
-3. **PATCH** version when you make backwards compatible bug fixes.
-
-You can use the `npm version` command to help you with this:
-
-```bash
-# major update / breaking changes
-npm version major
-
-# minor update / new features
-npm version update
-
-# patch / bugfixes
-npm version patch
+{
+  "name": "Free@home",
+  "platform": "FreeAtHomePlatform",
+  "hostname": "192.168.1.2",
+  "username": "username",
+  "password": "password",
+  "autoReconnect": true,
+  "timeout": 3,
+  "mqtt": {
+    "enabled": true,
+    "host": "127.0.0.1",
+    "port": 1883,
+    "username": "mqttUsername",
+    "password": "mqttPassword"
+  },
+  "devices": {
+    "HomeTouchPanel": {
+      "enabled": true,
+      "automaticDoorOpener": {
+        "enabled": true
+      },
+      "callLevelDoorCall": {
+        "enabled": false,
+        "camera": {
+          "name": "Doorbell",
+          "port": 5000,
+          "uploader": false,
+          "videoConfig": {
+            "source": "-rtsp_transport tcp -i rtsp://192.168.1.3:1234/stream",
+            "stillImageSource": "-i -rtsp_transport tcp -i rtsp://192.168.1.3:1234/stream -vframes 1",
+            "maxStreams": 2,
+            "maxWidth": 1920,
+            "maxHeight": 1080,
+            "vcodec": "libx264",
+            "packetSize": 1316,
+            "videoFilter": "none",
+            "debug": true,
+            "audio": false,
+            "acodec": "libfdk_aac"
+          }
+        }
+      },
+      "defaultDoorOpener": {
+        "enabled": false
+      },
+      "doorCall1": {
+        "enabled": true,
+        "image": "doorcall-1.jpg"
+      },
+      "doorCall2": {
+        "enabled": true,
+        "image": "doorcall-2.jpg"
+      },
+      "doorCall3": {
+        "enabled": true,
+        "image": "doorcall-3.jpg"
+      },
+      "doorCall4": {
+        "enabled": true,
+        "image": "doorcall-4.jpg"
+      },
+      "doorOpener1": {
+        "enabled": true
+      },
+      "doorOpener2": {
+        "enabled": true
+      },
+      "doorOpener3": {
+        "enabled": true,
+        "timer": {
+          "enabled": true,
+          "delay": 10,
+          "type": "switch"
+        }
+      },
+      "doorOpener4": {
+        "enabled": true,
+        "timer": {
+          "enabled": true,
+          "delay": 10,
+          "type": "garagedoor"
+        }
+      },
+      "hallwayLight": {
+        "enabled": true
+      }
+    }
+  }
+}
 ```
 
-## Publish Package
+## Platform configuration
 
-When you are ready to publish your plugin to [npm](https://www.npmjs.com/), make sure you have removed the `private` attribute from the [`package.json`](./package.json) file then run:
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| hostname | string | Yes | The IP address or hostname of the SysAp. |
+| username | string | Yes | The username for the SysAp. |
+| password | string | Yes | The password for the SysAp. |
+| autoReconnect | boolean | No | Whether to automatically reconnect to the SysAp when the connection is lost. Default is `true`. |
+| timeout | number | No | The timeout in milliseconds for requests to the SysAp. Default is `30000`. |
+| mqtt | [MQTTConfig](#mqtt-configuration-mqttconfig) | No | The MQTT configuration. |
+| devices | object | No | The device configuration. The keys are the serial numbers of the devices and the values are the device configurations. See below for more details. |
 
-```
-npm publish
-```
+## MQTT configuration (MQTTConfig)
 
-If you are publishing a scoped plugin, i.e. `@username/homebridge-xxx` you will need to add `--access=public` to command the first time you publish.
+| Property | Type | Required | Default | Description |
+|----------|------|----------|---------|-------------|
+| enabled | boolean | No | `true` | Whether to enable MQTT. |
+| host | string | No | `'127.0.0.1'` | The hostname or IP address of the MQTT server. |
+| port | number | No | `1883` | The port of the MQTT server. |
+| username | string | No | | The username for the MQTT server. |
+| password | string | No | | The password for the MQTT server. |
 
-#### Publishing Beta Versions
+## Generic device configuration (DeviceConfig)
 
-You can publish *beta* versions of your plugin for other users to test before you release it to everyone.
+| Property | Type | Required | Default | Description |
+|----------|------|----------|---------|-------------|
+| enabled | boolean | No | `true` | Whether to enable the device. |
 
-```bash
-# create a new pre-release version (eg. 2.1.0-beta.1)
-npm version prepatch --preid beta
+## HomeTouch Panel configuration (HomeTouchPanelConfig)
 
-# publsh to @beta
-npm publish --tag=beta
-```
+![83221ap](f_83221ap-611.jpg)
 
-Users can then install the  *beta* version by appending `@beta` to the install command, for example:
+| Property | Type | Required | HomeKit Service | Description |
+|----------|------|----------|---------|-------------|
+| enabled | boolean | No | | Whether to enable the device. |
+| hallwayLight | [DeviceConfig](#generic-device-configuration-deviceconfig) | No | `Lightbulb` | The configuration for the hallway light. |
+| doorOpener1 | [DoorOpenerConfig](#door-opener-configuration-dooropenerconfig) | No | `LockMechanism`, `ContactSensor` | The configuration for door opener 1. |
+| doorOpener2 | [DoorOpenerConfig](#door-opener-configuration-dooropenerconfig) | No | `LockMechanism`, `ContactSensor` | The configuration for door opener 2. |
+| doorOpener3 | [DoorOpenerConfig](#door-opener-configuration-dooropenerconfig) | No | `LockMechanism`, `ContactSensor` | The configuration for door opener 3. |
+| doorOpener4 | [DoorOpenerConfig](#door-opener-configuration-dooropenerconfig) | No | `LockMechanism`, `ContactSensor` | The configuration for door opener 4. |
+| defaultDoorOpener | [DoorOpenerConfig](#door-opener-configuration-dooropenerconfig) | No | `LockMechanism`, `ContactSensor` | The configuration for the default door opener. |
+| doorCall1 | [DoorCallConfig](#doorcallconfig) | No | `Doorbell`, `MotionSensor` | The configuration for door call 1. |
+| doorCall2 | [DoorCallConfig](#doorcallconfig) | No | `Doorbell`, `MotionSensor` | The configuration for door call 2. |
+| doorCall3 | [DoorCallConfig](#doorcallconfig) | No | `Doorbell`, `MotionSensor` | The configuration for door call 3. |
+| doorCall4 | [DoorCallConfig](#doorcallconfig) | No | `Doorbell`, `MotionSensor` | The configuration for door call 4. |
+| callLevelDoorCall | [DoorCallConfig](#doorcallconfig) | No | `Doorbell`, `MotionSensor` | The configuration for the call level door call. |
+| automaticDoorOpener | [DeviceConfig](#generic-device-configuration-deviceconfig) | No | `Switch` | The configuration for the automatic door opener. |
 
-```
-sudo npm install -g homebridge-example-plugin@beta
-```
+#### Door Opener configuration (DoorOpenerConfig)
 
+| Property | Type | Required | Default | Description |
+|----------|------|----------|---------|-------------|
+| enabled | boolean | No | `true` | Whether to enable the device. |
+| timer | [Timer](#timer) | No | | The timer configuration for the door opener. |
 
+#### Timer
+
+| Property | Type | Required | Default | Description |
+|----------|------|----------|---------|-------------|
+| enabled | boolean | No | `false` | Whether to enable the timer. |
+| delay | number | No | `30` | The delay in seconds before the door opener is turned off. |
+| type | string | No | `'switch'` | The type of timer to use. Can be `'switch'` or `'garagedoor'`. |
+
+#### DoorCallConfig
+
+| Property | Type | Required | Default | Description |
+|----------|------|----------|---------|-------------|
+| enabled | boolean | No | `true` | Whether to enable the device. |
+| timer | [Timer](#timer) | No | | The timer configuration for the door call. |
+| image | string | No | | The image to display for the door call. |
+| camera | [CameraConfig](#cameraconfig) | No | | The camera configuration for the door call. |
+
+#### CameraConfig
+
+| Property | Type | Required | Default | Description |
+|----------|------|----------|---------|-------------|
+| name | string | No | `'Camera'` | The name of the camera. |
+| port | number | No | `5000` | The port. |
+| uploader | boolean | No | `false` | The uploader. |
+| videoConfig | [VideoConfig](#videoconfig) | No | `undefined` | The video configuration. |
+
+#### VideoConfig
+
+| Property | Type | Required | Default | Description |
+|----------|------|----------|---------|-------------|
+| source | string | No | `'-rtsp_transport tcp -i rtsp://127.0.0.1:8554/stream'` | The video source. |
+| stillImageSource | string | No | `'-rtsp_transport tcp -i rtsp://127.0.0.1:8554/stream -vframes 1'` | The image source. |
+| maxStreams | number | No | `2` | The maximum number of streams. |
+| maxWidth | number | No | `1920` | The maximum width. |
+| maxHeight | number | No | `1080` | The maximum height. |
+| vcodec | string | No | `'libx264'` | The codec to use for video. |
+| packetSize | number | No | `1316` | The packet size. |
+| videoFilter | string | No | `''` | The video filter. |
+| debug | boolean | No | `false` | Whether to enable debug mode. |
+| audio | boolean | No | `false` | Whether to enable audio. |
+| acodec | string | No | `'libfdk_aac'` | The codec to use for audio. |
+| lensCorrection | [LensCorrection](#lens-correction) | No | `undefined` | The lens correction settings. |
+
+#### Lens Correction
+
+| Property | Type | Required | Default | Description |
+|----------|------|----------|---------|-------------|
+| k1 | number | No | `0.5` | The k1 value. |
+| k2 | number | No | `0.5` | The k2 value. |
