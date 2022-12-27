@@ -60,7 +60,7 @@ export class TimedAccessoryHandler extends DeviceHandler {
     const displayName = roomName + ' timer';
     const timerAsGarageOpener = (config !== undefined && config.timer?.type === 'garagedoor');
 
-    let expiredServiceType: null | Service;
+    let expiredServiceType;
 
     // controller
     if (timerAsGarageOpener) {
