@@ -31,7 +31,7 @@
     "freeathome-devices": "^1.0.22",
     "homebridge-camera-ffmpeg": "^3.1.4",
     "ip": "^1.1.8",
-    "mqtt": "^4.3.7"
+    "mqtt": "^4.3.8"
   },
   "devDependencies": {
     "@types/node": "^13.13.6",
